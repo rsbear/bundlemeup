@@ -11,72 +11,77 @@ For the sake of simplicity! A CLI tool that wraps rsbuild to bundle React, Svelt
 - Bundling can output an SPA, a mountable ESM module, or an NPM module
 - Dev mode with HMR, thanks to rsbuild
 - Fast, also thanks to rsbuild
+- Satisfies minimalism fetish
 
-## Quick bit on how it works
-bundlemeup CLI does some best guesses about what to do based on your package.json or deno.json. For example, if it sees React in your dependencies, it sets up rsbuild and plugin-react behind the scenes and can bundle accordingly - same thing for Svelte or Preact.
+## Planned features
+- [ ] flag `--css-*` for automatically setting up different CSS approaches
+- [ ] flag `--deployto-*` for deploying bundles to a given host
+- [ ] Support `solidjs` as a frontend framework
+- [ ] Support `gleam/lustre` as a frontend framework
+- [ ] Support `ripple` as a frontend framework
 
 ## Not for you if..
 - You need to customize your build process
 - You don't like build magic
 
-## Installation
+## Setting up a project for `bundlemeup`
 
-### From Source
-
-```bash
-deno install -A -n bundlemeup mod.ts
+### Directory Structure
+Please note that an `app` file is **required**. It's the file that `bundlemeup` looks up as an entry point.
 ```
+my-app/
+├── app.tsx or App.svelte       # Your app component
+├── deno.json or package.json   # Project config
+└── ...
+```
+
+### Conventions and Entry Points
+`bundlemup` leverages file naming as a convention - the following file names are supported:
+- `App.ts(x)`, `App.js(x)`, `app.ts(x)`, `app.js(x)`, or one of those within a `src` directory (e.g. `src/app.tsx`)
+- `App.svelte`, `src/App.svelte`
+- __TODO: support mod.ts(x) for developing npm/jsr modules__
+
+`bundlemeup` CLI does some best guesses about what to do based on your package.json or deno.json. For example, if it sees React in your dependencies, it sets up rsbuild and plugin-react behind the scenes and can bundle accordingly - same thing for Svelte or Preact.
+
 
 ## Usage
 
-### Production Build
+__Make sure you are executing from your projects root...__
 
+**Start a dev server**
 ```bash
-bundlemeup --framework react
-bundlemeup -f preact
-bundlemeup -f svelte
+deno run -A jsr:@mayi/bundlemeup --dev
+```
+
+**Build an SPA**
+```bash
+deno run -A jsr:@mayi/bundlemeup --buildfor-spa
+```
+
+**Build as a Mountable ESM module**
+```bash
+deno run -A jsr:@mayi/bundlemeup --buildfor-mountable
+```
+
+**Build for NPM (WIP, currently not working)**
+```bash
+deno run -A jsr:@mayi/bundlemeup --buildfor-npm
 ```
 
 This will:
 1. Find your app entry point (searches for `app.tsx`, `App.tsx`, `App.svelte`, etc.)
 2. Generate framework-specific mount code
-3. Bundle everything into `./dist/bundle.js`
+3. Bundle everything into `./dist/*`
 
-### Development Mode
-
-```bash
-bundlemeup --framework react --dev
-bundlemeup -f svelte -d
-```
-
-This will:
-1. Bundle your app with source maps
-2. Start a dev server on `http://localhost:3000`
-3. Watch for file changes and rebuild automatically
-4. Reload the browser when files change
-
-## Project Structure
-
-Your project should have one of these entry points:
-- `app.tsx` / `App.tsx`
-- `app.ts` / `App.ts`
-- `src/app.tsx` / `src/App.tsx`
-- `App.svelte` (for Svelte)
-
-Example:
-
-```
-my-app/
-├── app.tsx          # Your app component
-├── deno.json        # Project config (package.json is supported)
-└── ...
-```
 
 ## CLI Options
 
 - `-f, --framework <type>` - Framework to use: `react`, `preact`, or `svelte` (default: `react`)
-- `-d, --dev` - Development mode with file watching and dev server
+- `-d, --dev` - Starts your app in an `rsbuild` dev server
 - `-h, --help` - Show help message
+- `--buildfor-spa` - Outputs a production ready SPA build
+- `--buildfor-mountable` - Outputs a production ready mountable ESM module
+- `--buildfor-npm` - Outputs a module ready for NPM distribution
 
 ## Examples
 
@@ -126,6 +131,11 @@ bundler -f preact -d
 1. **Entry Point Detection**: Automatically finds your app component
 2. **Virtualized Mount Code**: Creates framework-specific mounting code
 3. **Bundling**: Uses esbuild with Deno loader to bundle everything
+
+## Why...?
+- It's something that i personally wanted. 
+- If i can't see build or config files, i'm not thinking about them.
+- It fits a use case for some other projects im working on (undisclosed)
 
 ## License
 
