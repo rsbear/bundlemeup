@@ -1,5 +1,5 @@
 {
-  "name": "@rsbear/esbuildany",
+  "name": "bundlemeup",
   "version": "0.1.0",
   "exports": "./mod.ts",
   "nodeModulesDir": "auto",
