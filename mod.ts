@@ -13,9 +13,9 @@ export interface CommandFlags {
   domid?: string;
   info?: "json" | "text";
   externals?: string;
-  distributeNpm?: boolean;
-  distributeSpa?: boolean;
-  distributeMountable?: boolean;
+  buildforNpm?: boolean;
+  buildforSpa?: boolean;
+  buildforMountable?: boolean;
 }
 
 await new Command()
@@ -31,30 +31,37 @@ await new Command()
     "--externals <externals:string>",
     "Mark a project dep as external. Accepts: 'framework' (inferred from project deps) or comma separated string e.g. 'react,react-dom'",
   )
-  .option("--domid <domid:string>", "DOM id to mount the app into")
+  .option(
+    "--domid <domid:string>",
+    "DOM id to mount the app into",
+  )
   .option(
     "--info <info:string>",
     "Print project information, Accepts: 'json' | 'text' (Exits early)",
   )
   .option(
-    "--distribute-npm",
+    "--buildfor-npm",
     "Bundle as npm library with external dependencies",
   )
-  .option("--distribute-spa", "Bundle as self-contained SPA with HTML")
   .option(
-    "--distribute-mountable",
+    "--buildfor-spa",
+    "Bundle as self-contained SPA with HTML",
+  )
+  .option(
+    "--buildfor-mountable",
     "Bundle with mount/unmount exports (default)",
   )
   .action(
+    // @ts-ignore should probably correctly type this object and then narrow via some validation
     async ({
       dev,
       framework,
       domid,
       info,
       externals,
-      distributeNpm,
-      distributeSpa,
-      distributeMountable,
+      buildforNpm,
+      buildforSpa,
+      buildforMountable,
     }: CommandFlags) => {
       const [discoveries, err] = await interpretCfg(framework, externals);
 
@@ -76,22 +83,22 @@ await new Command()
         distroTarget = "spa";
       } else {
         const distroFlags = [
-          distributeNpm,
-          distributeSpa,
-          distributeMountable,
+          buildforNpm,
+          buildforSpa,
+          buildforMountable,
         ].filter(Boolean);
         if (distroFlags.length > 1) {
           console.error(
-            "\nError: Only one --distribute-* flag can be specified",
+            "\nError: Only one --buildfor-* flag can be specified",
           );
           Deno.exit(1);
         }
 
-        if (distributeNpm) {
+        if (buildforNpm) {
           distroTarget = "npm";
-        } else if (distributeSpa) {
+        } else if (buildforSpa) {
           distroTarget = "spa";
-        } else if (distributeMountable) {
+        } else if (buildforMountable) {
           distroTarget = "mountable";
         }
       }
