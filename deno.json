@@ -1,15 +1,18 @@
 {
-  "name": "bundlemeup",
+  "name": "@mayi/bundlemeup",
   "version": "0.1.0",
+  "license": "MIT",
   "exports": "./mod.ts",
   "nodeModulesDir": "auto",
   "tasks": {
     "dev": "deno run -A mod.ts --dev",
     "bundlemeup": "deno run -A mod.ts",
-    "test": "deno run -A test-integration.ts"
+    "test": "deno run -A test-integration.ts",
+    "build:npm": "deno run -A build_npm.ts"
   },
   "imports": {
     "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.8",
+    "@deno/dnt": "jsr:@deno/dnt@^0.42.3",
     "@deno/esbuild-plugin": "jsr:@deno/esbuild-plugin@^1.2.0",
     "@rsbuild/core": "npm:@rsbuild/core@^1.6.1",
     "@rsbuild/plugin-babel": "npm:@rsbuild/plugin-babel@^1.0.6",
