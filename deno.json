@@ -1,0 +1,37 @@
+{
+  "name": "@rsbear/esbuildany",
+  "version": "0.1.0",
+  "exports": "./mod.ts",
+  "nodeModulesDir": "auto",
+  "tasks": {
+    "dev": "deno run -A mod.ts --dev",
+    "bundlemeup": "deno run -A mod.ts",
+    "test": "deno run -A test-integration.ts"
+  },
+  "imports": {
+    "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.8",
+    "@deno/esbuild-plugin": "jsr:@deno/esbuild-plugin@^1.2.0",
+    "@rsbuild/core": "npm:@rsbuild/core@^1.6.1",
+    "@rsbuild/plugin-babel": "npm:@rsbuild/plugin-babel@^1.0.6",
+    "@rsbuild/plugin-preact": "npm:@rsbuild/plugin-preact@^1.6.0",
+    "@rsbuild/plugin-react": "npm:@rsbuild/plugin-react@^1.4.1",
+    "@rsbuild/plugin-solid": "npm:@rsbuild/plugin-solid@^1.0.6",
+    "@rsbuild/plugin-svelte": "npm:@rsbuild/plugin-svelte@^1.0.11",
+    "@snowman/rspack-deno-plugin": "jsr:@snowman/rspack-deno-plugin@^1.0.7",
+    "@std/assert": "jsr:@std/assert@1",
+    "@std/cli": "jsr:@std/cli@^1.0.23",
+    "@std/fs": "jsr:@std/fs@^1.0.19",
+    "@std/path": "jsr:@std/path@^1.0.6",
+    "@std/http": "jsr:@std/http@^1.0.21",
+    "rsbuild-plugin-virtual-module": "npm:rsbuild-plugin-virtual-module@^0.2.2",
+    "esbuild": "npm:esbuild@^0.25.12",
+    "rsbuild-plugin-virtual-module": "npm:rsbuild-plugin-virtual-module@^0.4.1",
+    "typescript": "npm:typescript@^5.9.3"
+  },
+  "compilerOptions": {
+    "verbatimModuleSyntax": true
+  },
+  "fmt": {
+    "lineWidth": 100
+  }
+}
