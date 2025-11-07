@@ -1,6 +1,6 @@
-# bundlemeup - A dead simple JS/TS bundler built on rsbuild
+# bundlemeup
 
-For the sake of simplicity! A lightweight CLI tool that wraps rsbuild to bundle React, Svelte, or Preact applications.
+For the sake of simplicity! A CLI tool that wraps rsbuild to bundle React, Svelte, or Preact to specified targets.
 
 ## Features
 
