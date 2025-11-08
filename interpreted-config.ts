@@ -1,10 +1,14 @@
 /**
- * Responsible for interpreting the project the CLI is being ran for
+ * This module interprets the project the CLI is being ran for
+ * and builds a data object for later use.
  * - best guess project package manager via a lock file
  * - best guess framework based on project deps
- * - best guess entry file based on app.js(x)|ts(x) convention
+ * - find entry file based on app.js(x)|ts(x) convention
  * - best guess dep externalization based on CLI flag and/or framework
+ *
+ * @module
  */
+
 import type { Frameworks, OkErr, Runtimes } from "./types.ts";
 
 type PkgName = string;
@@ -24,6 +28,11 @@ export interface InterpretedCfg {
   externalDeps: Record<PkgName, PkgVersion> | null;
 }
 
+/**
+ * Build an object of data relevant to the project being acted upon
+ * Things such as runtime, framework, deps, etc..
+ * Review the InterpretedCfg for more
+ */
 export const interpretCfg = async (
   maybeFramework?: Frameworks,
   externals?: string,
@@ -61,6 +70,9 @@ export const interpretCfg = async (
   }
 };
 
+/**
+ * extract the projects runtime/pkg manager based on a lock
+ */
 function discoverRuntime(): Runtimes {
   const lockFiles: Array<[string, Runtimes]> = [
     ["deno.lock", "deno"],
@@ -80,6 +92,9 @@ function discoverRuntime(): Runtimes {
   return "nodejs";
 }
 
+/**
+ * Extract the projects framework from its deps
+ */
 function discoverFramework(libs: Record<PkgName, PkgVersion>): Frameworks | null {
   if (libs["svelte"]) return "svelte";
   if (libs["preact"]) return "preact";
@@ -87,6 +102,9 @@ function discoverFramework(libs: Record<PkgName, PkgVersion>): Frameworks | null
   return null;
 }
 
+/**
+ * Handle a projects deno.json or package.json
+ */
 async function parseLibs(runtime: Runtimes): Promise<Record<PkgName, PkgVersion>> {
   if (runtime === "deno") {
     return await parseDenoJSON();
@@ -95,6 +113,9 @@ async function parseLibs(runtime: Runtimes): Promise<Record<PkgName, PkgVersion>
   }
 }
 
+/**
+ * Handle package.json deps
+ */
 async function parsePackageJSON(): Promise<Record<PkgName, PkgVersion>> {
   try {
     const text = await Deno.readTextFile("package.json");
@@ -108,6 +129,9 @@ async function parsePackageJSON(): Promise<Record<PkgName, PkgVersion>> {
   }
 }
 
+/**
+ * Handle deno.json deps
+ */
 async function parseDenoJSON(): Promise<Record<PkgName, PkgVersion>> {
   try {
     const text = await Deno.readTextFile("deno.json");
@@ -135,6 +159,9 @@ async function parseDenoJSON(): Promise<Record<PkgName, PkgVersion>> {
   }
 }
 
+/**
+ * Locate the projects app file (entry point)
+ */
 function findAppFile(framework: Frameworks): string | null {
   const extensions = framework === "svelte" ? [".svelte"] : [".tsx", ".ts", ".jsx", ".js"];
 
@@ -199,6 +226,9 @@ function findAppFile(framework: Frameworks): string | null {
   return null;
 }
 
+/**
+ * Build up a record of external deps for the project
+ */
 function buildExternalDeps(
   externals: string | undefined,
   deps: Record<PkgName, PkgVersion>,
@@ -230,6 +260,9 @@ function buildExternalDeps(
   return externalDeps;
 }
 
+/**
+ * Look up a framework in deps
+ */
 function getFrameworkDeps(framework: Frameworks): string[] {
   switch (framework) {
     case "react":
@@ -241,6 +274,9 @@ function getFrameworkDeps(framework: Frameworks): string[] {
   }
 }
 
+/**
+ * Silly abstraction to pass an error
+ */
 function produceInvalidAppFileMsg(framework: Frameworks): string {
   const cwd = Deno.cwd();
   const expectedFiles = framework === "svelte"
@@ -265,6 +301,9 @@ function produceInvalidAppFileMsg(framework: Frameworks): string {
 
 // -- a pretty print function so users can see how their project is being interpretted
 
+/**
+ * Pretty print project info
+ */
 export function printInterpretedCfg(discoveries: InterpretedCfg, info: "json" | "text") {
   if (info === "json") {
     console.log(JSON.stringify(discoveries));

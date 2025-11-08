@@ -8,42 +8,42 @@ import { getStrategy } from "./bundler-strategies.ts";
 import { validateFrameworkFlag } from "./validations.ts";
 
 export interface CommandFlags {
-  /*
+  /**
    * --framework
    *   If one not specified, one will be assumed via the projects dependencies
    */
   framework?: string;
-  /*
+  /**
    * --dev, -d
    *   Start an rsbuild dev server
    */
   dev?: boolean;
-  /*
+  /**
    * --domid
    *   supplied for --buildfor-mountable cases
    */
   domid?: string;
-  /*
+  /**
    * --info
    *   print some info about the project. Does not bundle
    */
   info?: string;
-  /*
+  /**
    * --externals
    *   explicitly mark dependencies as external to exclude from bundling
    */
   externals?: string;
-  /*
+  /**
    * --buildfor-npm
    *   Bundle for NPM distribution
    */
   buildforNpm?: boolean;
-  /*
+  /**
    * --buildfor-spa
    *   Bundle a SPA for static deployments
    */
   buildforSpa?: boolean;
-  /*
+  /**
    * --buildfor-mountable
    *   Bundle a mountable ESM module. Useful for external htmls
    */

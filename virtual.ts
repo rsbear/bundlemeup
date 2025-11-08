@@ -1,4 +1,3 @@
-import type * as esbuild from "esbuild";
 import type { Frameworks } from "./types.ts";
 
 const VIRTUAL_PREFIX = "virtual:bundlemeup/";
