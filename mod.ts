@@ -1,26 +1,58 @@
 import { Command } from "@cliffy/command";
 import { rsbuilder } from "./bundler.ts";
 
-import { interpretCfg } from "./interpreted-config.ts";
+import { interpretCfg, printInterpretedCfg } from "./interpreted-config.ts";
 
-import type { DistroTarget, Frameworks } from "./types.ts";
-import type { InterpretedCfg } from "./interpreted-config.ts";
+import type { DistroTarget } from "./types.ts";
 import { getStrategy } from "./bundler-strategies.ts";
+import { validateFrameworkFlag } from "./validations.ts";
 
 export interface CommandFlags {
-  framework?: Frameworks;
+  /*
+   * --framework
+   *   If one not specified, one will be assumed via the projects dependencies
+   */
+  framework?: string;
+  /*
+   * --dev, -d
+   *   Start an rsbuild dev server
+   */
   dev?: boolean;
+  /*
+   * --domid
+   *   supplied for --buildfor-mountable cases
+   */
   domid?: string;
-  info?: "json" | "text";
+  /*
+   * --info
+   *   print some info about the project. Does not bundle
+   */
+  info?: string;
+  /*
+   * --externals
+   *   explicitly mark dependencies as external to exclude from bundling
+   */
   externals?: string;
+  /*
+   * --buildfor-npm
+   *   Bundle for NPM distribution
+   */
   buildforNpm?: boolean;
+  /*
+   * --buildfor-spa
+   *   Bundle a SPA for static deployments
+   */
   buildforSpa?: boolean;
+  /*
+   * --buildfor-mountable
+   *   Bundle a mountable ESM module. Useful for external htmls
+   */
   buildforMountable?: boolean;
 }
 
 await new Command()
   .name("bundlemeup")
-  .version("0.1.0")
+  .version("0.1.1")
   .description("Bundle React, Preact, or Svelte apps with rsbuild")
   .option("-d, --dev", "Start development server with watch mode")
   .option(
@@ -52,91 +84,87 @@ await new Command()
     "Bundle with mount/unmount exports (default)",
   )
   .action(
-    // @ts-ignore should probably correctly type this object and then narrow via some validation
-    async ({
-      dev,
-      framework,
-      domid,
-      info,
-      externals,
-      buildforNpm,
-      buildforSpa,
-      buildforMountable,
-    }: CommandFlags) => {
-      const [discoveries, err] = await interpretCfg(framework, externals);
+    async (flags: CommandFlags) => {
+      // -- first step upon running the program is make sure a random string isn't being passed
+      //    as a framework.. narrow it down to supported possibilities
+      const [framework, invalidFramework] = validateFrameworkFlag(flags?.framework);
+      if (invalidFramework) {
+        console.error(`\nError: ${invalidFramework.message}`);
+        Deno.exit();
+      }
 
+      // -- extract the relevant parts of a project being bundled, such as framework, deps, etc.
+      const [discoveries, err] = await interpretCfg(framework, flags?.externals);
       if (err) {
         console.error(`\nError: ${err.message}`);
         Deno.exit(1);
       }
 
-      if (info) {
-        printInterpretedCfg(discoveries, info as "json" | "text");
+      // -- this needs to run early, the intention of the --info flag is only
+      //    to display information about the project
+      if (flags?.info) {
+        printInterpretedCfg(discoveries, flags.info as "json" | "text");
         Deno.exit();
       }
 
-      const domIdForDev = domid || "root";
+      // -- build section
 
-      let distroTarget: DistroTarget = "mountable";
+      // -- handling mountable
+      //    domid and mountable are mutually exclusive and dependent upon each other
 
-      if (dev) {
-        distroTarget = "spa";
+      // -- handling spa
+
+      // -- handling npm
+
+      const domIdForDev = flags.domid || "root";
+
+      let buildforTarget: DistroTarget = "mountable";
+
+      if (flags?.dev) {
+        buildforTarget = "spa";
       } else {
-        const distroFlags = [
-          buildforNpm,
-          buildforSpa,
-          buildforMountable,
+        const buildforFlags = [
+          flags?.buildforNpm,
+          flags?.buildforSpa,
+          flags?.buildforMountable,
         ].filter(Boolean);
-        if (distroFlags.length > 1) {
-          console.error(
-            "\nError: Only one --buildfor-* flag can be specified",
-          );
+        if (buildforFlags.length > 1) {
+          console.error("\nError: Only one --buildfor-* flag can be specified");
           Deno.exit(1);
         }
 
-        if (buildforNpm) {
-          distroTarget = "npm";
-        } else if (buildforSpa) {
-          distroTarget = "spa";
-        } else if (buildforMountable) {
-          distroTarget = "mountable";
+        if (flags?.buildforNpm) {
+          buildforTarget = "npm";
+        } else if (flags?.buildforSpa) {
+          buildforTarget = "spa";
+        } else if (flags?.buildforMountable) {
+          buildforTarget = "mountable";
         }
       }
 
-      const [rsbuild, rsbErr] = await rsbuilder(
-        discoveries,
-        distroTarget,
-        domIdForDev,
-      );
+      const [rsbuild, rsbErr] = await rsbuilder(discoveries, buildforTarget, domIdForDev);
       if (rsbErr) {
-        console.error(
-          `\n Error: ${rsbErr instanceof Error ? rsbErr.message : String(rsbErr)}`,
-        );
-        if (rsbErr instanceof Error && rsbErr.stack) {
+        console.error(`\n Error: ${rsbErr.message}`);
+        if (rsbErr.stack) {
           console.error(`\nStack trace:\n${rsbErr.stack}`);
         }
         Deno.exit(1);
       }
 
       try {
-        if (dev) {
-          console.log(
-            "Dev mode: HTML generation enabled with domId:",
-            domIdForDev,
-          );
+        if (flags?.dev) {
+          // console.log("Dev mode: HTML generation enabled with domId:", domIdForDev);
           await rsbuild.startDevServer();
         } else {
           console.log(`Framework found.. ${discoveries.framework}`);
           console.log(`Bundling.. ${discoveries.entryPoint}`);
           await rsbuild.build();
 
-          const strategy = getStrategy(distroTarget);
+          const strategy = getStrategy(buildforTarget);
           console.log(strategy.getOutputMessage());
         }
       } catch (error) {
-        console.error(
-          `\n Error: ${error instanceof Error ? error.message : String(error)}`,
-        );
+        console.error(`\n Error: ${error instanceof Error ? error.message : String(error)}`);
         if (error instanceof Error && error.stack) {
           console.error(`\nStack trace:\n${error.stack}`);
         }
@@ -145,27 +173,3 @@ await new Command()
     },
   )
   .parse(Deno.args);
-
-function printInterpretedCfg(
-  discoveries: InterpretedCfg,
-  info: "json" | "text",
-) {
-  if (info === "json") {
-    console.log(JSON.stringify(discoveries));
-    return;
-  }
-  console.log(`✓  Package manager:   ${discoveries.runtime}`);
-  console.log(`✓  Framework:         ${discoveries.framework}`);
-  console.log(`✓  App file:          ${discoveries.entryPoint}`);
-  console.log(`✓  Deps:`);
-  Object.entries(discoveries.deps).forEach(([k, v]) => {
-    console.log(`      ${k} : ${v}`);
-  });
-  console.log(`✓  External deps:`);
-  if (discoveries.externalDeps) {
-    Object.entries(discoveries.externalDeps).forEach(([k, v]) => {
-      console.log(`      ${k} : ${v}`);
-    });
-  }
-  return;
-}

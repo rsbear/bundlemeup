@@ -14,7 +14,7 @@ export type Rsbuilder =
 export async function rsbuilder(
   discoveries: InterpretedCfg,
   distroTarget: DistroTarget = "mountable",
-  domId?: string
+  domId?: string,
 ): Promise<Rsbuilder> {
   const { framework, runtime, entryPoint } = discoveries;
 
@@ -33,7 +33,7 @@ export async function rsbuilder(
     appFileUrl,
     framework,
     runtime,
-    domId
+    domId,
   );
 
   const rsbuild = await createRsbuild({ rsbuildConfig });

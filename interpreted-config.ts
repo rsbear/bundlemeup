@@ -262,3 +262,26 @@ function produceInvalidAppFileMsg(framework: Frameworks): string {
     `  Looked in: ${cwd}\n` +
     `  Expected one of: ${expectedFiles.join(", ")}`;
 }
+
+// -- a pretty print function so users can see how their project is being interpretted
+
+export function printInterpretedCfg(discoveries: InterpretedCfg, info: "json" | "text") {
+  if (info === "json") {
+    console.log(JSON.stringify(discoveries));
+    return;
+  }
+  console.log(`✓  Package manager:   ${discoveries.runtime}`);
+  console.log(`✓  Framework:         ${discoveries.framework}`);
+  console.log(`✓  App file:          ${discoveries.entryPoint}`);
+  console.log(`✓  Deps:`);
+  Object.entries(discoveries.deps).forEach(([k, v]) => {
+    console.log(`      ${k} : ${v}`);
+  });
+  console.log(`✓  External deps:`);
+  if (discoveries.externalDeps) {
+    Object.entries(discoveries.externalDeps).forEach(([k, v]) => {
+      console.log(`      ${k} : ${v}`);
+    });
+  }
+  return;
+}
