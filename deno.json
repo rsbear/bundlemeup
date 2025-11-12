@@ -5,9 +5,11 @@
   "exports": "./src/mod.ts",
   "nodeModulesDir": "auto",
   "tasks": {
-    "dev": "deno run -A src/mod.ts dev",
-    "bundlemeup": "deno run -A src/mod.ts",
-    "test": "deno run -A test-integration.ts",
+    "dev": "deno run -A src/cli.ts dev",
+    "bundlemeup": "deno run -A src/cli.ts",
+    "test": "deno test -A tests/deno.test.ts",
+    "test:all": "deno run -A tests/all.test.ts",
+    "test:bun": "bun test tests/bun.test.ts",
     "build:npm": "deno run -A build_npm.ts"
   },
   "imports": {

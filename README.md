@@ -46,11 +46,55 @@ my-app/
 
 ## Usage
 
-__Make sure you are executing from your projects root...__
+### CLI
 
-**Start a dev server**
 ```bash
-deno run -A jsr:@mayi/bundlemeup --dev
+# Get project info
+bundlemeup info
+
+# Start dev server
+bundlemeup dev [--framework <react|preact|svelte>]
+
+# Build for different targets
+bundlemeup build --for-spa           # Build single-page application
+bundlemeup build --for-npm           # Build for npm package
+bundlemeup build --for-mountable     # Build mountable application
+```
+
+### Programmatic API
+
+```typescript
+import { bundlemeup } from "bundlemeup";
+
+await bundlemeup({
+  command: "build",
+  forSpa: true,
+  framework: "react",
+  cwd: "./my-project"
+});
+```
+
+## Testing
+
+```bash
+# Run Deno tests (tests Deno examples)
+deno task test
+
+# Run all tests with summary
+deno task test:all
+
+# Run Bun tests (requires Bun runtime)
+bun test tests/bun.test.ts
+```
+
+## Development
+
+```bash
+# Build npm package
+deno task build:npm
+
+# Run tests
+deno task test
 ```
 
 **Build an SPA**
