@@ -1,8 +1,9 @@
-import { rsbuilder } from "./bundler.ts";
-import { interpretCfg } from "./interpreted-config.ts";
+import { interpretProjectData } from "./src/project-data.ts";
+import { buildForStrategy } from "./src/buildfor-strategy.ts";
+import { createRsbuild } from "@rsbuild/core";
 import { serveDir } from "@std/http/file-server";
 import { join } from "@std/path/join";
-import type { Frameworks } from "./types.ts";
+import type { Frameworks } from "./src/types.ts";
 
 interface Example {
   name: string;
@@ -48,23 +49,22 @@ async function bundleExample(example: Example): Promise<string> {
     Deno.chdir(example.path);
 
     // Discover project details using the refactored API
-    const [discoveries, err] = await interpretCfg();
+    const [projectData, err] = await interpretProjectData();
     if (err) {
       throw new Error(`Failed to discover project: ${err.message}`);
     }
 
-    console.log(`📦 Bundling ${example.name} (${discoveries.framework})...`);
+    console.log(`📦 Bundling ${example.name} (${projectData.framework})...`);
 
     // Bundle the example using the refactored API with mountable strategy
-    const [rsbuild, rsbErr] = await rsbuilder(discoveries, "mountable");
-    if (rsbErr) {
+    const config = buildForStrategy(projectData, "mountable");
+    if (!config) {
       throw new Error(
-        `Failed to create rsbuild instance: ${
-          rsbErr instanceof Error ? rsbErr.message : String(rsbErr)
-        }`,
+        `Failed to create rsbuild config for ${projectData.framework} with mountable strategy`,
       );
     }
 
+    const rsbuild = await createRsbuild(config);
     await rsbuild.build();
 
     // Find the generated bundle file (using relative path since we're in example dir)

@@ -14,7 +14,7 @@ import type { Frameworks, OkErr, Runtimes } from "./types.ts";
 type PkgName = string;
 type PkgVersion = string;
 
-export interface InterpretedCfg {
+export interface ProjectData {
   /** deno, bun, npm, or pnpm */
   runtime: Runtimes;
   /** svelte, react, preact */
@@ -33,10 +33,10 @@ export interface InterpretedCfg {
  * Things such as runtime, framework, deps, etc..
  * Review the InterpretedCfg for more
  */
-export const interpretCfg = async (
+export const interpretProjectData = async (
   maybeFramework?: Frameworks,
   externals?: string,
-): Promise<OkErr<InterpretedCfg>> => {
+): Promise<OkErr<ProjectData>> => {
   try {
     const runtime = discoverRuntime();
     const libs = await parseLibs(runtime);
@@ -58,13 +58,16 @@ export const interpretCfg = async (
 
     const externalDeps = buildExternalDeps(externals, libs, framework);
 
-    return [{
-      runtime,
-      framework,
-      deps: libs,
-      entryPoint,
-      externalDeps,
-    }, null];
+    return [
+      {
+        runtime,
+        framework,
+        deps: libs,
+        entryPoint,
+        externalDeps,
+      },
+      null,
+    ];
   } catch (error) {
     return [null, error instanceof Error ? error : new Error(String(error))];
   }
@@ -95,7 +98,9 @@ function discoverRuntime(): Runtimes {
 /**
  * Extract the projects framework from its deps
  */
-function discoverFramework(libs: Record<PkgName, PkgVersion>): Frameworks | null {
+function discoverFramework(
+  libs: Record<PkgName, PkgVersion>,
+): Frameworks | null {
   if (libs["svelte"]) return "svelte";
   if (libs["preact"]) return "preact";
   if (libs["react"]) return "react";
@@ -105,7 +110,9 @@ function discoverFramework(libs: Record<PkgName, PkgVersion>): Frameworks | null
 /**
  * Handle a projects deno.json or package.json
  */
-async function parseLibs(runtime: Runtimes): Promise<Record<PkgName, PkgVersion>> {
+async function parseLibs(
+  runtime: Runtimes,
+): Promise<Record<PkgName, PkgVersion>> {
   if (runtime === "deno") {
     return await parseDenoJSON();
   } else {
@@ -121,8 +128,8 @@ async function parsePackageJSON(): Promise<Record<PkgName, PkgVersion>> {
     const text = await Deno.readTextFile("package.json");
     const pkg = JSON.parse(text);
     return {
-      ...pkg.dependencies || {},
-      ...pkg.devDependencies || {},
+      ...(pkg.dependencies || {}),
+      ...(pkg.devDependencies || {}),
     };
   } catch {
     return {};
@@ -141,12 +148,16 @@ async function parseDenoJSON(): Promise<Record<PkgName, PkgVersion>> {
     const libs: Record<PkgName, PkgVersion> = {};
     for (const [key, value] of Object.entries(imports)) {
       if (typeof value === "string") {
-        const match = value.match(/^(?:npm:|jsr:)?(@?[\w-]+\/)?(@?[\w-]+)@(.+)$/);
+        const match = value.match(
+          /^(?:npm:|jsr:)?(@?[\w-]+\/)?(@?[\w-]+)@(.+)$/,
+        );
         if (match) {
           const pkgName = match[1] ? `${match[1]}${match[2]}` : match[2];
           libs[pkgName] = match[3];
         } else if (key.startsWith("npm:") || key.startsWith("jsr:")) {
-          const pkgMatch = key.match(/^(?:npm:|jsr:)(@?[\w-]+(?:\/[\w-]+)?)(?:@(.+))?$/);
+          const pkgMatch = key.match(
+            /^(?:npm:|jsr:)(@?[\w-]+(?:\/[\w-]+)?)(?:@(.+))?$/,
+          );
           if (pkgMatch) {
             libs[pkgMatch[1]] = pkgMatch[2] || "latest";
           }
@@ -163,7 +174,8 @@ async function parseDenoJSON(): Promise<Record<PkgName, PkgVersion>> {
  * Locate the projects app file (entry point)
  */
 function findAppFile(framework: Frameworks): string | null {
-  const extensions = framework === "svelte" ? [".svelte"] : [".tsx", ".ts", ".jsx", ".js"];
+  const extensions =
+    framework === "svelte" ? [".svelte"] : [".tsx", ".ts", ".jsx", ".js"];
 
   const rootFiles = new Set<string>();
   try {
@@ -239,7 +251,9 @@ function buildExternalDeps(
   }
 
   if (externals === "framework") {
-    console.log(` Inferring externals from defined ${framework} and externalizing`);
+    console.log(
+      ` Inferring externals from defined ${framework} and externalizing`,
+    );
     const frameworkDeps = getFrameworkDeps(framework);
     const externalDeps: Record<PkgName, PkgVersion> = {};
     for (const dep of frameworkDeps) {
@@ -279,24 +293,27 @@ function getFrameworkDeps(framework: Frameworks): string[] {
  */
 function produceInvalidAppFileMsg(framework: Frameworks): string {
   const cwd = Deno.cwd();
-  const expectedFiles = framework === "svelte"
-    ? ["app.svelte", "App.svelte", "src/app.svelte", "src/App.svelte"]
-    : [
-      "app.tsx",
-      "App.tsx",
-      "app.ts",
-      "App.ts",
-      "app.jsx",
-      "App.jsx",
-      "app.js",
-      "App.js",
-      "src/app.tsx",
-      "src/App.tsx",
-    ];
+  const expectedFiles =
+    framework === "svelte"
+      ? ["app.svelte", "App.svelte", "src/app.svelte", "src/App.svelte"]
+      : [
+          "app.tsx",
+          "App.tsx",
+          "app.ts",
+          "App.ts",
+          "app.jsx",
+          "App.jsx",
+          "app.js",
+          "App.js",
+          "src/app.tsx",
+          "src/App.tsx",
+        ];
 
-  return `Could not find entry point for ${framework}\n` +
+  return (
+    `Could not find entry point for ${framework}\n` +
     `  Looked in: ${cwd}\n` +
-    `  Expected one of: ${expectedFiles.join(", ")}`;
+    `  Expected one of: ${expectedFiles.join(", ")}`
+  );
 }
 
 // -- a pretty print function so users can see how their project is being interpretted
@@ -304,7 +321,10 @@ function produceInvalidAppFileMsg(framework: Frameworks): string {
 /**
  * Pretty print project info
  */
-export function printInterpretedCfg(discoveries: InterpretedCfg, info: "json" | "text") {
+export function printProjectData(
+  discoveries: ProjectData,
+  info: "json" | "text",
+) {
   if (info === "json") {
     console.log(JSON.stringify(discoveries));
     return;

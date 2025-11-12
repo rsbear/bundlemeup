@@ -1,10 +1,10 @@
 clean:
   cd examples 
-  rm -rf deno-react/dist 
-  rm -rf deno-svelte/dist 
-  rm -rf deno-preact/dist 
-  rm -rf bun-react/dist 
-  rm -rf bun-svelte/dist 
+  rm -rf examples/deno-react/dist 
+  rm -rf examples/deno-svelte/dist 
+  rm -rf examples/deno-preact/dist 
+  rm -rf examples/bun-react/dist 
+  rm -rf examples/bun-svelte/dist 
 
 test_all:
   deno task test

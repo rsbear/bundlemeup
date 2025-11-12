@@ -9,6 +9,7 @@
     "jsr:@deno/dnt@~0.42.3": "0.42.3",
     "jsr:@deno/esbuild-plugin@^1.2.0": "1.2.0",
     "jsr:@deno/loader@~0.3.3": "0.3.9",
+    "jsr:@deno/loader@~0.3.9": "0.3.9",
     "jsr:@snowman/rspack-deno-plugin@^1.0.7": "1.0.7",
     "jsr:@std/assert@1": "1.0.15",
     "jsr:@std/cli@^1.0.23": "1.0.23",
@@ -89,7 +90,7 @@
     "@deno/esbuild-plugin@1.2.0": {
       "integrity": "04ddd0fca9416d8a2866263928a53b9d5ed08dfca064d64504a0aaf9800c709e",
       "dependencies": [
-        "jsr:@deno/loader",
+        "jsr:@deno/loader@~0.3.3",
         "jsr:@std/path@^1.1.1",
         "npm:esbuild@~0.25.5"
       ]
@@ -1208,6 +1209,7 @@
       "jsr:@cliffy/command@1.0.0-rc.8",
       "jsr:@deno/dnt@~0.42.3",
       "jsr:@deno/esbuild-plugin@^1.2.0",
+      "jsr:@deno/loader@~0.3.9",
       "jsr:@snowman/rspack-deno-plugin@^1.0.7",
       "jsr:@std/assert@1",
       "jsr:@std/cli@^1.0.23",
