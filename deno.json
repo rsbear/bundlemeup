@@ -1,8 +1,12 @@
 {
   "name": "@habitat/bundleup",
-  "version": "0.1.14",
+  "version": "0.1.16",
   "license": "MIT",
   "exports": "./src/mod.ts",
+  "exports": {
+    ".": "./src/cli.ts",
+    "./lib": "./src/mod.ts",
+  },
   "nodeModulesDir": "auto",
   "tasks": {
     "dev": "deno run -A src/cli.ts dev",
@@ -39,5 +43,9 @@
   },
   "fmt": {
     "lineWidth": 100
+  },
+  "publish": {
+    "include": ["LICENSE", "README.md", "src"],
+    "exclude": ["examples", ".github"]
   }
 }
