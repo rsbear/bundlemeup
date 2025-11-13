@@ -5,7 +5,10 @@ import type { Frameworks } from "./types.ts";
 
 const program = new Command();
 
-program.name("bundlemeup").description("Bundle your app").version("1.0.0");
+program.name("bundlemeup").description("Bundle your app").version("1.0.0")
+  .action(function() {
+    this.showHelp();
+  });
 
 program
   .command("info")
