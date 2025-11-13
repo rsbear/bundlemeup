@@ -21,7 +21,7 @@ export interface ProjectData {
   framework: Frameworks;
   /** deps from package.json or deno.json */
   deps: Record<PkgName, PkgVersion>;
-  /** bundle entry point aka 'app.tsx' */
+  /** bundle entry point aka 'app.tsx' or 'mod.tsx' */
   entryPoint: string;
 
   /** externalized deps */
@@ -174,8 +174,7 @@ async function parseDenoJSON(): Promise<Record<PkgName, PkgVersion>> {
  * Locate the projects app file (entry point)
  */
 function findAppFile(framework: Frameworks): string | null {
-  const extensions =
-    framework === "svelte" ? [".svelte"] : [".tsx", ".ts", ".jsx", ".js"];
+  const extensions = framework === "svelte" ? [".svelte"] : [".tsx", ".ts", ".jsx", ".js"];
 
   const rootFiles = new Set<string>();
   try {
@@ -293,21 +292,20 @@ function getFrameworkDeps(framework: Frameworks): string[] {
  */
 function produceInvalidAppFileMsg(framework: Frameworks): string {
   const cwd = Deno.cwd();
-  const expectedFiles =
-    framework === "svelte"
-      ? ["app.svelte", "App.svelte", "src/app.svelte", "src/App.svelte"]
-      : [
-          "app.tsx",
-          "App.tsx",
-          "app.ts",
-          "App.ts",
-          "app.jsx",
-          "App.jsx",
-          "app.js",
-          "App.js",
-          "src/app.tsx",
-          "src/App.tsx",
-        ];
+  const expectedFiles = framework === "svelte"
+    ? ["app.svelte", "App.svelte", "src/app.svelte", "src/App.svelte"]
+    : [
+      "app.tsx",
+      "App.tsx",
+      "app.ts",
+      "App.ts",
+      "app.jsx",
+      "App.jsx",
+      "app.js",
+      "App.js",
+      "src/app.tsx",
+      "src/App.tsx",
+    ];
 
   return (
     `Could not find entry point for ${framework}\n` +
