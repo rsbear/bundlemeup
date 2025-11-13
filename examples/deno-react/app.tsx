@@ -9,7 +9,7 @@ export default function App() {
   };
 
   return (
-    <div>
+    <div className="mt-12">
       <input
         type="text"
         onChange={(e) => setState(e.target.value)}

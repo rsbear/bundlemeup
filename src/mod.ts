@@ -43,6 +43,7 @@ export async function bundlemeup(flags: BundlemeupFlags) {
           throw err;
         }
 
+        pd.cssTw = flags.cssTw;
         const cfg = buildForStrategy(pd, "spa");
         const rsbuild = await createRsbuild(cfg);
         await rsbuild.startDevServer();
@@ -55,6 +56,7 @@ export async function bundlemeup(flags: BundlemeupFlags) {
           throw err;
         }
 
+        pd.cssTw = flags.cssTw;
         const targets = buildTargetToStrUnion(flags);
         const cfg = buildForStrategy(pd, targets);
 

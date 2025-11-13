@@ -14,16 +14,23 @@ export function getVirtualIds() {
   return { VIRTUAL_PREFIX, VIRTUAL_MOD_ID, VIRTUAL_MOUNT_ID };
 }
 
+export function createTailwindCss(): string {
+  return `@import "tailwindcss/index.css";`;
+}
+
 export function createSpaAutoMountCode(
   framework: Frameworks,
   appImportSpecifier: string,
   domId: string = "root",
+  includeTailwind?: boolean,
 ): string {
+  const cssImport = includeTailwind ? `import "../tailwind.css";` : "";
   const appImport = `import App from "${appImportSpecifier}";`;
 
   switch (framework) {
     case "react":
-      return `${appImport}
+      return `${cssImport}
+${appImport}
 import React from 'react';
 import { createRoot } from "react-dom/client";
 
@@ -40,7 +47,8 @@ rootInstance.render(
 );`;
 
     case "preact":
-      return `${appImport}
+      return `${cssImport}
+${appImport}
 import { render } from "preact";
 
 const root = document.getElementById("${domId}");
@@ -51,7 +59,8 @@ if (!root) {
 render(<App />, root);`;
 
     case "svelte":
-      return `${appImport}
+      return `${cssImport}
+${appImport}
 import { mount as svelteMount } from "svelte";
 
 const root = document.getElementById("${domId}");
@@ -71,12 +80,15 @@ svelteMount(App, {
 export function createUnifiedMountCode(
   framework: Frameworks,
   appImportSpecifier: string,
+  includeTailwind?: boolean,
 ): string {
+  const cssImport = includeTailwind ? `import "../tailwind.css";` : "";
   const appImport = `import App from "${appImportSpecifier}";`;
 
   switch (framework) {
     case "react":
-      return `${appImport}
+      return `${cssImport}
+${appImport}
 import React from 'react';
 import { createRoot } from "react-dom/client";
 
@@ -89,7 +101,6 @@ export function mount(domId = "root") {
     throw new Error(\`Root element with id "\${domId}" not found\`);
   }
 
-  // Clean up previous mount if exists
   if (rootInstance) {
     rootInstance.unmount();
   }
@@ -114,7 +125,8 @@ export function unmount() {
 }`;
 
     case "preact":
-      return `${appImport}
+      return `${cssImport}
+${appImport}
 import { render } from "preact";
 
 let rootInstance = null;
@@ -126,7 +138,6 @@ export function mount(domId = "root") {
     throw new Error(\`Root element with id "\${domId}" not found\`);
   }
 
-  // Clean up previous mount if exists
   if (rootInstance) {
     unmount();
   }
@@ -146,7 +157,8 @@ export function unmount() {
 }`;
 
     case "svelte":
-      return `${appImport}
+      return `${cssImport}
+${appImport}
 import { mount as svelteMount } from "svelte";
 
 let componentInstance = null;
@@ -157,7 +169,6 @@ export function mount(domId = "root") {
     throw new Error(\`Root element with id "\${domId}" not found\`);
   }
 
-  // Clean up previous mount if exists
   if (componentInstance) {
     unmount();
   }

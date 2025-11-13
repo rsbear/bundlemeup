@@ -4,7 +4,11 @@ import { pluginReact } from "@rsbuild/plugin-react";
 import { pluginVirtualModule } from "rsbuild-plugin-virtual-module";
 import RspackDenoPlugin from "@snowman/rspack-deno-plugin";
 import type { ProjectData } from "../project-data.ts";
-import { createSpaAutoMountCode, createUnifiedMountCode } from "../virtual.ts";
+import {
+  createSpaAutoMountCode,
+  createTailwindCss,
+  createUnifiedMountCode,
+} from "../virtual.ts";
 import { toFileUrl } from "@std/path/to-file-url";
 
 export function reactSpa(pd: ProjectData): CreateRsbuildOptions {
@@ -12,14 +16,25 @@ export function reactSpa(pd: ProjectData): CreateRsbuildOptions {
   const appAbsPath = Deno.realPathSync(pd.entryPoint);
   const appFileUrl = toFileUrl(appAbsPath).href;
 
-  const spaAutoMountCode = createSpaAutoMountCode("react", appFileUrl, "root");
+  const spaAutoMountCode = createSpaAutoMountCode(
+    "react",
+    appFileUrl,
+    "root",
+    pd.cssTw,
+  );
+
+  const virtualModules: Record<string, () => string> = {
+    "bundlemeup/_mod.jsx": () => spaAutoMountCode,
+  };
+
+  if (pd.cssTw) {
+    virtualModules["tailwind.css"] = () => createTailwindCss();
+  }
 
   const plugins = [
     pluginVirtualModule({
       tempDir,
-      virtualModules: {
-        "bundlemeup/_mod.jsx": () => spaAutoMountCode,
-      },
+      virtualModules,
     }),
     pluginReact(),
   ];
@@ -28,6 +43,16 @@ export function reactSpa(pd: ProjectData): CreateRsbuildOptions {
   if (pd.runtime === "deno") {
     rspackPlugins.push(new RspackDenoPlugin());
   }
+
+  const postcssConfig = pd.cssTw
+    ? {
+        postcssOptions: {
+          plugins: [
+            "@tailwindcss/postcss",
+          ],
+        },
+      }
+    : undefined;
 
   return {
     rsbuildConfig: defineConfig({
@@ -45,6 +70,7 @@ export function reactSpa(pd: ProjectData): CreateRsbuildOptions {
         },
       },
       tools: {
+        postcss: postcssConfig,
         rspack: {
           plugins: rspackPlugins,
           resolve: {
@@ -127,14 +153,20 @@ export function reactMountable(pd: ProjectData): CreateRsbuildOptions {
   const appAbsPath = Deno.realPathSync(pd.entryPoint);
   const appFileUrl = toFileUrl(appAbsPath).href;
 
-  const unifiedMountCode = createUnifiedMountCode("react", appFileUrl);
+  const unifiedMountCode = createUnifiedMountCode("react", appFileUrl, pd.cssTw);
+
+  const virtualModules: Record<string, () => string> = {
+    "bundlemeup/_mod.jsx": () => unifiedMountCode,
+  };
+
+  if (pd.cssTw) {
+    virtualModules["tailwind.css"] = () => createTailwindCss();
+  }
 
   const plugins = [
     pluginVirtualModule({
       tempDir,
-      virtualModules: {
-        "bundlemeup/_mod.jsx": () => unifiedMountCode,
-      },
+      virtualModules,
     }),
     pluginReact(),
   ];
@@ -143,6 +175,16 @@ export function reactMountable(pd: ProjectData): CreateRsbuildOptions {
   if (pd.runtime === "deno") {
     rspackPlugins.push(new RspackDenoPlugin());
   }
+
+  const postcssConfig = pd.cssTw
+    ? {
+        postcssOptions: {
+          plugins: [
+            "@tailwindcss/postcss",
+          ],
+        },
+      }
+    : undefined;
 
   return {
     rsbuildConfig: defineConfig({
@@ -160,6 +202,7 @@ export function reactMountable(pd: ProjectData): CreateRsbuildOptions {
         },
       },
       tools: {
+        postcss: postcssConfig,
         rspack: {
           plugins: rspackPlugins,
           resolve: {

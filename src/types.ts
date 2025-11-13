@@ -17,4 +17,5 @@ export interface BundlemeupFlags {
   forMountable?: boolean;
   forSpa?: boolean;
   cwd?: string;
+  cssTw?: boolean;
 }

@@ -26,6 +26,9 @@ export interface ProjectData {
 
   /** externalized deps */
   externalDeps: Record<PkgName, PkgVersion> | null;
+
+  /** enable Tailwind CSS v4 integration */
+  cssTw?: boolean;
 }
 
 /**

@@ -33,9 +33,11 @@
     "@std/fs": "jsr:@std/fs@^1.0.19",
     "@std/path": "jsr:@std/path@^1.0.6",
     "@std/http": "jsr:@std/http@^1.0.21",
+    "@tailwindcss/postcss": "npm:@tailwindcss/postcss@^4.1.17",
     "rsbuild-plugin-virtual-module": "npm:rsbuild-plugin-virtual-module@^0.2.2",
     "esbuild": "npm:esbuild@^0.25.12",
     "rsbuild-plugin-virtual-module": "npm:rsbuild-plugin-virtual-module@^0.4.1",
+    "tailwindcss": "npm:tailwindcss@^4.1.17",
     "typescript": "npm:typescript@^5.9.3"
   },
   "compilerOptions": {

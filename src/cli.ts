@@ -35,11 +35,13 @@ program
     "--framework <framework>",
     "Optional. By default, bundlemeup will try to detect the framework from dependencies. Use flag if you prefer to be explicit",
   )
-  .action(async (flags: { framework?: string }) => {
+  .option("--css-tw", "Enable Tailwind CSS v4 integration")
+  .action(async (flags: { framework?: string; cssTw?: boolean }) => {
     try {
       await bundlemeup({
         command: "dev",
         framework: flags?.framework as Frameworks,
+        cssTw: flags.cssTw,
       });
     } catch (err) {
       console.error(err);
@@ -53,6 +55,7 @@ interface BuildFlags {
   forNpm?: boolean;
   forMountable?: boolean;
   forSpa?: boolean;
+  cssTw?: boolean;
 }
 
 program
@@ -69,6 +72,7 @@ program
   .option("--for-npm", "Build for NPM")
   .option("--for-mountable", "Build a mountable application for external use")
   .option("--for-spa", "Build a single-page application")
+  .option("--css-tw", "Enable Tailwind CSS v4 integration")
   .action(async (flags: BuildFlags) => {
     try {
       await bundlemeup({
@@ -78,6 +82,7 @@ program
         forNpm: flags.forNpm,
         forMountable: flags.forMountable,
         forSpa: flags.forSpa,
+        cssTw: flags.cssTw,
       });
     } catch (err) {
       console.error(err);
