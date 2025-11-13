@@ -1,4 +1,6 @@
 import { build, emptyDir } from "@deno/dnt";
+import denoJson from "./deno.json" with { type: "json" };
+console.log("version", denoJson.version);
 
 await emptyDir("./npm");
 
@@ -19,7 +21,7 @@ await build({
   test: false,
   package: {
     name: "bundlemeup",
-    version: Deno.args[0] || "0.1.1",
+    version: denoJson.version,
     description:
       "A CLI tool that wraps rsbuild to bundle React, Svelte, or Preact to specified targets",
     license: "MIT",

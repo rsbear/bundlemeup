@@ -8,6 +8,7 @@
     "jsr:@david/code-block-writer@^13.0.3": "13.0.3",
     "jsr:@deno/dnt@~0.42.3": "0.42.3",
     "jsr:@deno/esbuild-plugin@^1.2.0": "1.2.0",
+    "jsr:@deno/loader@0.3.9": "0.3.9",
     "jsr:@deno/loader@~0.3.3": "0.3.9",
     "jsr:@deno/loader@~0.3.9": "0.3.9",
     "jsr:@snowman/rspack-deno-plugin@^1.0.7": "1.0.7",

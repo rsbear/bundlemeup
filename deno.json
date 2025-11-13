@@ -1,6 +1,6 @@
 {
-  "name": "@mayi/bundlemeup",
-  "version": "0.1.12",
+  "name": "@habitat/bundleup",
+  "version": "0.1.14",
   "license": "MIT",
   "exports": "./src/mod.ts",
   "nodeModulesDir": "auto",
