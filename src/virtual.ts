@@ -1,3 +1,9 @@
+/**
+ * The module contains a given frameworks' mount code.
+ * It is injected or built in a build or dev time.
+ * @module
+ */
+
 import type { Frameworks } from "./types.ts";
 
 const VIRTUAL_PREFIX = "virtual:bundlemeup/";

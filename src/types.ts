@@ -1,3 +1,8 @@
+/**
+ * This module contains the core types for the library
+ * @module
+ */
+
 export type Frameworks = "svelte" | "preact" | "react";
 export type Runtimes = "nodejs" | "bun" | "deno";
 export type BuildTargets = "npm" | "spa" | "mountable";

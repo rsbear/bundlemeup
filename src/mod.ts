@@ -1,3 +1,10 @@
+/**
+ * The module is core programmatic API for @habitat/bundleup
+ * and ultimately exposes a function called bundlemeup()
+ * that users can execute in a script.
+ * @module
+ */
+
 import { interpretProjectData, printProjectData } from "./project-data.ts";
 import { createRsbuild } from "@rsbuild/core";
 import { buildForStrategy } from "./buildfor-strategy.ts";
@@ -14,7 +21,7 @@ function buildTargetToStrUnion(flags: BundlemeupFlags): BuildTargets {
 
 export async function bundlemeup(flags: BundlemeupFlags) {
   const originalCwd = Deno.cwd();
-  
+
   try {
     if (flags.cwd) {
       Deno.chdir(flags.cwd);

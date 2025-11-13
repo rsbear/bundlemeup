@@ -1,4 +1,10 @@
 #!/usr/bin/env node
+
+/**
+ * This module contains the cli to run @habitat/bundleup on a project.
+ * @module
+ */
+
 import { Command } from "@cliffy/command";
 import { bundlemeup } from "./mod.ts";
 import type { Frameworks } from "./types.ts";
@@ -6,7 +12,7 @@ import type { Frameworks } from "./types.ts";
 const program = new Command();
 
 program.name("bundlemeup").description("Bundle your app").version("1.0.0")
-  .action(function() {
+  .action(function () {
     this.showHelp();
   });
 

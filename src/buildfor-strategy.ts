@@ -1,3 +1,9 @@
+/**
+ * This module determines a strategy for retrieving
+ * a build configuration object.
+ * @module
+ */
+
 import type { ProjectData } from "./project-data.ts";
 import * as rsbuilders from "./rsbuild-configs/mod.ts";
 import type { BuildTargets } from "./types.ts";
