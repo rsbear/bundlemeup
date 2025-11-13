@@ -13,12 +13,13 @@ For the sake of simplicity! A CLI tool that wraps rsbuild to bundle React, Svelt
 - Fast, also thanks to rsbuild
 - Satisfies minimalism fetish
 
-## Planned features
+## TODOs or Planned features
+- [ ] leverage src/rsbuild-plugin-deno instead of snowmans so that the CLI can work with deno and npm module
 - [ ] flag `--css-*` for automatically setting up different CSS approaches
-- [ ] flag `--deployto-*` for deploying bundles to a given host
 - [ ] Support `solidjs` as a frontend framework
 - [ ] Support `gleam/lustre` as a frontend framework
 - [ ] Support `ripple` as a frontend framework
+- [ ] flag `--deployto-*` for deploying bundles to a given host
 
 ## Not for you if..
 - You need to customize your build process
