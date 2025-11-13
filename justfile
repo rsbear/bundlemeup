@@ -1,4 +1,3 @@
-# just do commands
 
 default:
   @just --list
