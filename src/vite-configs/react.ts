@@ -2,7 +2,7 @@ import type { InlineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import type { ProjectData } from "../project-data.ts";
 import { toFileUrl } from "@std/path/to-file-url";
-import tailwindcss from "@tailwindcss/postcss";
+import tailwindcss from "@tailwindcss/vite";
 
 export async function reactSpa(pd: ProjectData): Promise<InlineConfig> {
   const appAbsPath = Deno.realPathSync(pd.entryPoint);
@@ -16,7 +16,6 @@ export async function reactSpa(pd: ProjectData): Promise<InlineConfig> {
 import App from "${appFileUrl}";
 import React from 'react';
 import { createRoot } from "react-dom/client";
-${pd.cssTw ? 'import "./tailwind.css";' : ''}
 
 const root = document.getElementById("root");
 if (!root) {
@@ -35,6 +34,7 @@ rootInstance.render(
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>App</title>
+    ${pd.cssTw ? '<link rel="stylesheet" href="/tailwind.css" />' : ''}
   </head>
   <body>
     <div id="root"></div>
@@ -46,11 +46,16 @@ rootInstance.render(
   await Deno.writeTextFile(`${tempDir}/index.html`, htmlContent);
   
   if (pd.cssTw) {
-    await Deno.writeTextFile(`${tempDir}/tailwind.css`, '@import "tailwindcss/index.css";');
+    await Deno.writeTextFile(`${tempDir}/tailwind.css`, '@import "tailwindcss";');
+  }
+
+  const plugins = [react()];
+  if (pd.cssTw) {
+    plugins.push(tailwindcss());
   }
 
   const config: InlineConfig = {
-    plugins: [react()],
+    plugins,
     root: tempDir,
     server: {
       fs: {
@@ -71,16 +76,6 @@ rootInstance.render(
     },
   };
 
-  if (pd.cssTw) {
-    config.css = {
-      postcss: {
-        plugins: [
-          tailwindcss,
-        ],
-      },
-    };
-  }
-
   return config;
 }
 
@@ -88,11 +83,19 @@ export async function reactMountable(pd: ProjectData): Promise<InlineConfig> {
   const appAbsPath = Deno.realPathSync(pd.entryPoint);
   const appFileUrl = toFileUrl(appAbsPath).href;
 
+  const cwd = Deno.cwd();
+  const tempDir = `${cwd}/.bundlemeup`;
+  await Deno.mkdir(tempDir, { recursive: true });
+
+  if (pd.cssTw) {
+    await Deno.writeTextFile(`${tempDir}/tailwind.css`, '@import "tailwindcss";');
+  }
+
   const entryContent = `
 import App from "${appFileUrl}";
 import React from 'react';
 import { createRoot } from "react-dom/client";
-${pd.cssTw ? 'import "virtual:tailwind.css";' : ''}
+${pd.cssTw ? 'import "../.bundlemeup/tailwind.css";' : ''}
 
 let rootInstance = null;
 let rootElement = null;
@@ -131,18 +134,18 @@ export function unmount() {
       name: "bundlemeup-virtual-entry",
       resolveId(id: string) {
         if (id === "virtual:entry") return "\0virtual:entry.js";
-        if (id === "virtual:tailwind.css" && pd.cssTw) return "\0virtual:tailwind.css";
         return null;
       },
       load(id: string) {
         if (id === "\0virtual:entry.js") return entryContent;
-        if (id === "\0virtual:tailwind.css" && pd.cssTw) {
-          return '@import "tailwindcss/index.css";';
-        }
         return null;
       },
     },
   ];
+
+  if (pd.cssTw) {
+    plugins.push(tailwindcss());
+  }
 
   const config: InlineConfig = {
     plugins,
@@ -163,16 +166,6 @@ export function unmount() {
       outDir: "dist",
     },
   };
-
-  if (pd.cssTw) {
-    config.css = {
-      postcss: {
-        plugins: [
-          tailwindcss,
-        ],
-      },
-    };
-  }
 
   return config;
 }

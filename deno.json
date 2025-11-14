@@ -36,6 +36,7 @@
     "@std/http": "jsr:@std/http@^1.0.21",
     "@sveltejs/vite-plugin-svelte": "npm:@sveltejs/vite-plugin-svelte@^6.2.1",
     "@tailwindcss/postcss": "npm:@tailwindcss/postcss@^4.1.17",
+    "@tailwindcss/vite": "npm:@tailwindcss/vite@^4.1.17",
     "@vitejs/plugin-react": "npm:@vitejs/plugin-react@^5.1.1",
     "postcss": "npm:postcss@^8.5.6",
     "rsbuild-plugin-virtual-module": "npm:rsbuild-plugin-virtual-module@^0.2.2",

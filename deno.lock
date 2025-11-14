@@ -46,6 +46,7 @@
     "npm:@rspack/core@^1.2.2": "1.6.0_@swc+helpers@0.5.17",
     "npm:@sveltejs/vite-plugin-svelte@^6.2.1": "6.2.1_svelte@5.43.3__acorn@8.15.0_vite@7.2.2__@types+node@24.2.0__picomatch@4.0.3_@types+node@24.2.0",
     "npm:@tailwindcss/postcss@^4.1.17": "4.1.17",
+    "npm:@tailwindcss/vite@^4.1.17": "4.1.17_vite@7.2.2__@types+node@24.2.0__picomatch@4.0.3_@types+node@24.2.0",
     "npm:@types/node@*": "24.2.0",
     "npm:@vitejs/plugin-react@^5.1.1": "5.1.1_vite@7.2.2__@types+node@24.2.0__picomatch@4.0.3_@babel+core@7.28.5_@types+node@24.2.0",
     "npm:esbuild@~0.25.12": "0.25.12",
@@ -1153,6 +1154,15 @@
         "tailwindcss"
       ]
     },
+    "@tailwindcss/vite@4.1.17_vite@7.2.2__@types+node@24.2.0__picomatch@4.0.3_@types+node@24.2.0": {
+      "integrity": "sha512-4+9w8ZHOiGnpcGI6z1TVVfWaX/koK7fKeSYF3qlYg2xpBtbteP2ddBxiarL+HVgfSJGeK5RIxRQmKm4rTJJAwA==",
+      "dependencies": [
+        "@tailwindcss/node",
+        "@tailwindcss/oxide",
+        "tailwindcss",
+        "vite"
+      ]
+    },
     "@tybys/wasm-util@0.10.1": {
       "integrity": "sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==",
       "dependencies": [
@@ -1865,6 +1875,7 @@
       "npm:@rsbuild/plugin-svelte@^1.0.11",
       "npm:@sveltejs/vite-plugin-svelte@^6.2.1",
       "npm:@tailwindcss/postcss@^4.1.17",
+      "npm:@tailwindcss/vite@^4.1.17",
       "npm:@vitejs/plugin-react@^5.1.1",
       "npm:esbuild@~0.25.12",
       "npm:postcss@^8.5.6",
