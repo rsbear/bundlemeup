@@ -53,6 +53,11 @@ render(h(App, null), root);
   const config: InlineConfig = {
     plugins,
     root: tempDir,
+    resolve: {
+      alias: {
+        tailwindcss: `${cwd}/node_modules/tailwindcss`,
+      },
+    },
     server: {
       fs: {
         strict: false,
@@ -142,6 +147,11 @@ export function unmount() {
   const config: InlineConfig = {
     plugins,
     root: Deno.cwd(),
+    resolve: pd.cssTw ? {
+      alias: {
+        tailwindcss: `${cwd}/node_modules/tailwindcss`,
+      },
+    } : undefined,
     build: {
       lib: {
         entry: "virtual:entry",

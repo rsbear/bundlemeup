@@ -1,6 +1,6 @@
 {
   "name": "@habitat/bundleup",
-  "version": "0.1.25",
+  "version": "0.1.26",
   "license": "MIT",
   "description": "A CLI that wraps Vite to build frontend framework based projects",
   "exports": {
