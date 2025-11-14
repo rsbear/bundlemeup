@@ -2,7 +2,6 @@ import type { InlineConfig } from "vite";
 import preact from "@preact/preset-vite";
 import type { ProjectData } from "../project-data.ts";
 import { toFileUrl } from "@std/path/to-file-url";
-import tailwindcss from "@tailwindcss/vite";
 
 export async function preactSpa(pd: ProjectData): Promise<InlineConfig> {
   const appAbsPath = Deno.realPathSync(pd.entryPoint);
@@ -43,21 +42,16 @@ render(h(App, null), root);
   
   if (pd.cssTw) {
     await Deno.writeTextFile(`${tempDir}/tailwind.css`, '@import "tailwindcss";');
+    await Deno.writeTextFile(`${tempDir}/postcss.config.mjs`, `export default {
+  plugins: {
+    "@tailwindcss/postcss": {},
   }
-
-  const plugins = [preact()];
-  if (pd.cssTw) {
-    plugins.push(tailwindcss());
+}`);
   }
 
   const config: InlineConfig = {
-    plugins,
+    plugins: [preact()],
     root: tempDir,
-    resolve: {
-      alias: {
-        tailwindcss: `${cwd}/node_modules/tailwindcss`,
-      },
-    },
     server: {
       fs: {
         strict: false,
@@ -90,6 +84,11 @@ export async function preactMountable(pd: ProjectData): Promise<InlineConfig> {
 
   if (pd.cssTw) {
     await Deno.writeTextFile(`${tempDir}/tailwind.css`, '@import "tailwindcss";');
+    await Deno.writeTextFile(`${tempDir}/postcss.config.mjs`, `export default {
+  plugins: {
+    "@tailwindcss/postcss": {},
+  }
+}`);
   }
 
   const entryContent = `
@@ -140,18 +139,9 @@ export function unmount() {
     preact(),
   ];
 
-  if (pd.cssTw) {
-    plugins.push(tailwindcss());
-  }
-
   const config: InlineConfig = {
     plugins,
     root: Deno.cwd(),
-    resolve: pd.cssTw ? {
-      alias: {
-        tailwindcss: `${cwd}/node_modules/tailwindcss`,
-      },
-    } : undefined,
     build: {
       lib: {
         entry: "virtual:entry",
