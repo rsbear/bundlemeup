@@ -7,12 +7,16 @@ import tailwindcss from "@tailwindcss/postcss";
 export async function reactSpa(pd: ProjectData): Promise<InlineConfig> {
   const appAbsPath = Deno.realPathSync(pd.entryPoint);
   const appFileUrl = toFileUrl(appAbsPath).href;
+  const cwd = Deno.cwd();
+  
+  const tempDir = `${cwd}/.bundlemeup`;
+  await Deno.mkdir(tempDir, { recursive: true });
 
   const entryContent = `
 import App from "${appFileUrl}";
 import React from 'react';
 import { createRoot } from "react-dom/client";
-${pd.cssTw ? 'import "virtual:tailwind.css";' : ''}
+${pd.cssTw ? 'import "./tailwind.css";' : ''}
 
 const root = document.getElementById("root");
 if (!root) {
@@ -25,38 +29,45 @@ rootInstance.render(
 );
 `;
 
-  const plugins = [
-    react(),
-    {
-      name: "bundlemeup-virtual-entry",
-      resolveId(id: string) {
-        if (id === "virtual:entry") return "\0virtual:entry.tsx";
-        if (id === "virtual:tailwind.css" && pd.cssTw) return "\0virtual:tailwind.css";
-        return null;
-      },
-      load(id: string) {
-        if (id === "\0virtual:entry.tsx") return entryContent;
-        if (id === "\0virtual:tailwind.css" && pd.cssTw) {
-          return '@import "tailwindcss/index.css";';
-        }
-        return null;
-      },
-    },
-  ];
+  const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>App</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/entry.tsx"></script>
+  </body>
+</html>`;
+
+  await Deno.writeTextFile(`${tempDir}/entry.tsx`, entryContent);
+  await Deno.writeTextFile(`${tempDir}/index.html`, htmlContent);
+  
+  if (pd.cssTw) {
+    await Deno.writeTextFile(`${tempDir}/tailwind.css`, '@import "tailwindcss/index.css";');
+  }
 
   const config: InlineConfig = {
-    plugins,
-    root: Deno.cwd(),
+    plugins: [react()],
+    root: tempDir,
+    server: {
+      fs: {
+        strict: false,
+      },
+    },
     build: {
       rollupOptions: {
-        input: "virtual:entry",
+        input: `${tempDir}/index.html`,
         output: {
           entryFileNames: "index.js",
           chunkFileNames: "[name].js",
           assetFileNames: "[name].[ext]",
         },
       },
-      outDir: "dist",
+      outDir: `${cwd}/dist`,
+      emptyOutDir: true,
     },
   };
 
