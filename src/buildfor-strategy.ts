@@ -5,46 +5,46 @@
  */
 
 import type { ProjectData } from "./project-data.ts";
-import * as rsbuilders from "./rsbuild-configs/mod.ts";
+import * as viteBuilders from "./vite-configs/mod.ts";
 import type { BuildTargets } from "./types.ts";
 
-export function buildForStrategy(
+export async function buildForStrategy(
   projectData: ProjectData,
   targets: BuildTargets,
 ) {
   if (projectData.framework === "react") {
     if (targets === "spa") {
-      return rsbuilders.reactSpa(projectData);
+      return await viteBuilders.reactSpa(projectData);
     }
     if (targets === "mountable") {
-      return rsbuilders.reactMountable(projectData);
+      return await viteBuilders.reactMountable(projectData);
     }
     if (targets === "npm") {
-      return rsbuilders.reactNpm(projectData);
+      return await viteBuilders.reactNpm(projectData);
     }
   }
 
   if (projectData.framework === "preact") {
     if (targets === "spa") {
-      return rsbuilders.preactSpa(projectData);
+      return await viteBuilders.preactSpa(projectData);
     }
     if (targets === "mountable") {
-      return rsbuilders.preactMountable(projectData);
+      return await viteBuilders.preactMountable(projectData);
     }
     if (targets === "npm") {
-      return rsbuilders.preactNpm(projectData);
+      return await viteBuilders.preactNpm(projectData);
     }
   }
 
   if (projectData.framework === "svelte") {
     if (targets === "spa") {
-      return rsbuilders.svelteSpa(projectData);
+      return await viteBuilders.svelteSpa(projectData);
     }
     if (targets === "mountable") {
-      return rsbuilders.svelteMountable(projectData);
+      return await viteBuilders.svelteMountable(projectData);
     }
     if (targets === "npm") {
-      return rsbuilders.svelteNpm(projectData);
+      return await viteBuilders.svelteNpm(projectData);
     }
   }
 }

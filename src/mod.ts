@@ -6,7 +6,7 @@
  */
 
 import { interpretProjectData, printProjectData } from "./project-data.ts";
-import { createRsbuild } from "@rsbuild/core";
+import { build as viteBuild, createServer as viteCreateServer } from "vite";
 import { buildForStrategy } from "./buildfor-strategy.ts";
 import type { BuildTargets, BundlemeupFlags } from "./types.ts";
 
@@ -44,9 +44,11 @@ export async function bundlemeup(flags: BundlemeupFlags) {
         }
 
         pd.cssTw = flags.cssTw;
-        const cfg = buildForStrategy(pd, "spa");
-        const rsbuild = await createRsbuild(cfg);
-        await rsbuild.startDevServer();
+        const cfg = await buildForStrategy(pd, "spa");
+        const server = await viteCreateServer(cfg);
+        await server.listen();
+        server.printUrls();
+        server.bindCLIShortcuts({ print: true });
         break;
       }
 
@@ -58,10 +60,9 @@ export async function bundlemeup(flags: BundlemeupFlags) {
 
         pd.cssTw = flags.cssTw;
         const targets = buildTargetToStrUnion(flags);
-        const cfg = buildForStrategy(pd, targets);
+        const cfg = await buildForStrategy(pd, targets);
 
-        const rsbuild = await createRsbuild(cfg);
-        await rsbuild.build();
+        await viteBuild(cfg);
         break;
       }
 
