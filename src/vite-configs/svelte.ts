@@ -2,12 +2,13 @@ import type { InlineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import type { ProjectData } from "../project-data.ts";
 import { toFileUrl } from "@std/path/to-file-url";
+import tailwindcss from "@tailwindcss/vite";
 
 export async function svelteSpa(pd: ProjectData): Promise<InlineConfig> {
   const appAbsPath = Deno.realPathSync(pd.entryPoint);
   const appFileUrl = toFileUrl(appAbsPath).href;
   const cwd = Deno.cwd();
-  
+
   const tempDir = `${cwd}/.bundlemeup`;
   await Deno.mkdir(tempDir, { recursive: true });
 
@@ -31,7 +32,6 @@ svelteMount(App, {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>App</title>
-    ${pd.cssTw ? '<link rel="stylesheet" href="/tailwind.css" />' : ''}
   </head>
   <body>
     <div id="root"></div>
@@ -41,18 +41,15 @@ svelteMount(App, {
 
   await Deno.writeTextFile(`${tempDir}/entry.js`, entryContent);
   await Deno.writeTextFile(`${tempDir}/index.html`, htmlContent);
-  
+
+  const plugins = [svelte()];
+
   if (pd.cssTw) {
-    await Deno.writeTextFile(`${tempDir}/tailwind.css`, '@import "tailwindcss";');
-    await Deno.writeTextFile(`${tempDir}/postcss.config.mjs`, `export default {
-  plugins: {
-    "@tailwindcss/postcss": {},
-  }
-}`);
+    plugins.push(tailwindcss());
   }
 
   const config: InlineConfig = {
-    plugins: [svelte()],
+    plugins,
     root: tempDir,
     server: {
       fs: {
@@ -84,19 +81,9 @@ export async function svelteMountable(pd: ProjectData): Promise<InlineConfig> {
   const tempDir = `${cwd}/.bundlemeup`;
   await Deno.mkdir(tempDir, { recursive: true });
 
-  if (pd.cssTw) {
-    await Deno.writeTextFile(`${tempDir}/tailwind.css`, '@import "tailwindcss";');
-    await Deno.writeTextFile(`${tempDir}/postcss.config.mjs`, `export default {
-  plugins: {
-    "@tailwindcss/postcss": {},
-  }
-}`);
-  }
-
   const entryContent = `
 import App from "${appFileUrl}";
 import { mount as svelteMount } from "svelte";
-${pd.cssTw ? 'import "../.bundlemeup/tailwind.css";' : ''}
 
 let componentInstance = null;
 
@@ -139,6 +126,10 @@ export function unmount() {
       },
     },
   ];
+
+  if (pd.cssTw) {
+    plugins.push(tailwindcss());
+  }
 
   const config: InlineConfig = {
     plugins,

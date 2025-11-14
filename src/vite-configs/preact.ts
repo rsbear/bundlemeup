@@ -2,12 +2,13 @@ import type { InlineConfig } from "vite";
 import preact from "@preact/preset-vite";
 import type { ProjectData } from "../project-data.ts";
 import { toFileUrl } from "@std/path/to-file-url";
+import tailwindcss from "@tailwindcss/vite";
 
 export async function preactSpa(pd: ProjectData): Promise<InlineConfig> {
   const appAbsPath = Deno.realPathSync(pd.entryPoint);
   const appFileUrl = toFileUrl(appAbsPath).href;
   const cwd = Deno.cwd();
-  
+
   const tempDir = `${cwd}/.bundlemeup`;
   await Deno.mkdir(tempDir, { recursive: true });
 
@@ -29,7 +30,6 @@ render(h(App, null), root);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>App</title>
-    ${pd.cssTw ? '<link rel="stylesheet" href="/tailwind.css" />' : ''}
   </head>
   <body>
     <div id="root"></div>
@@ -39,14 +39,11 @@ render(h(App, null), root);
 
   await Deno.writeTextFile(`${tempDir}/entry.jsx`, entryContent);
   await Deno.writeTextFile(`${tempDir}/index.html`, htmlContent);
-  
+
+  const plugins = [preact()];
+
   if (pd.cssTw) {
-    await Deno.writeTextFile(`${tempDir}/tailwind.css`, '@import "tailwindcss";');
-    await Deno.writeTextFile(`${tempDir}/postcss.config.mjs`, `export default {
-  plugins: {
-    "@tailwindcss/postcss": {},
-  }
-}`);
+    plugins.push(tailwindcss());
   }
 
   const config: InlineConfig = {
@@ -82,19 +79,9 @@ export async function preactMountable(pd: ProjectData): Promise<InlineConfig> {
   const tempDir = `${cwd}/.bundlemeup`;
   await Deno.mkdir(tempDir, { recursive: true });
 
-  if (pd.cssTw) {
-    await Deno.writeTextFile(`${tempDir}/tailwind.css`, '@import "tailwindcss";');
-    await Deno.writeTextFile(`${tempDir}/postcss.config.mjs`, `export default {
-  plugins: {
-    "@tailwindcss/postcss": {},
-  }
-}`);
-  }
-
   const entryContent = `
 import App from "${appFileUrl}";
 import { render, h } from "preact";
-${pd.cssTw ? 'import "../.bundlemeup/tailwind.css";' : ''}
 
 let rootInstance = null;
 let rootElement = null;
@@ -138,6 +125,10 @@ export function unmount() {
     },
     preact(),
   ];
+
+  if (pd.cssTw) {
+    plugins.push(tailwindcss());
+  }
 
   const config: InlineConfig = {
     plugins,
