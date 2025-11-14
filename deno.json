@@ -1,6 +1,6 @@
 {
   "name": "@habitat/bundleup",
-  "version": "0.1.20",
+  "version": "0.1.21",
   "license": "MIT",
   "description": "A CLI that wraps rsbuild to build frontend framework based projects",
   "exports": {
@@ -34,6 +34,7 @@
     "@std/path": "jsr:@std/path@^1.0.6",
     "@std/http": "jsr:@std/http@^1.0.21",
     "@tailwindcss/postcss": "npm:@tailwindcss/postcss@^4.1.17",
+    "postcss": "npm:postcss@^8.5.6",
     "rsbuild-plugin-virtual-module": "npm:rsbuild-plugin-virtual-module@^0.2.2",
     "esbuild": "npm:esbuild@^0.25.12",
     "rsbuild-plugin-virtual-module": "npm:rsbuild-plugin-virtual-module@^0.4.1",
