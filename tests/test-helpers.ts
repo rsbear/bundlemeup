@@ -1,4 +1,4 @@
-import { bundlemeup } from "../src/mod.ts";
+import { bundleup } from "../src/mod.ts";
 import { exists } from "@std/fs";
 import { join } from "@std/path";
 
@@ -59,7 +59,7 @@ export async function cleanupDistDir(examplePath: string) {
 
 export async function testInfoCommand(example: TestExample): Promise<boolean> {
   try {
-    await bundlemeup({
+    await bundleup({
       command: "info",
       cwd: example.path,
     });
@@ -74,7 +74,7 @@ export async function testBuildSpa(example: TestExample): Promise<boolean> {
   try {
     await cleanupDistDir(example.path);
 
-    await bundlemeup({
+    await bundleup({
       command: "build",
       forSpa: true,
       cwd: example.path,
@@ -115,7 +115,7 @@ export async function testBuildNpm(example: TestExample): Promise<boolean> {
   try {
     await cleanupDistDir(example.path);
 
-    await bundlemeup({
+    await bundleup({
       command: "build",
       forNpm: true,
       cwd: example.path,
@@ -140,7 +140,7 @@ export async function testBuildMountable(example: TestExample): Promise<boolean>
   try {
     await cleanupDistDir(example.path);
 
-    await bundlemeup({
+    await bundleup({
       command: "build",
       forMountable: true,
       cwd: example.path,

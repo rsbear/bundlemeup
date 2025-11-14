@@ -3,9 +3,9 @@
  * @module
  */
 
-export type Frameworks = "svelte" | "preact" | "react";
+export type Frameworks = "svelte" | "preact" | "react" | "auto";
 export type Runtimes = "nodejs" | "bun" | "deno";
-export type BuildTargets = "npm" | "spa" | "mountable";
+export type BuildTargets = "npm" | "spa" | "mountable" | "dev";
 
 export type OkErr<T> = [ok: T, err: null] | [ok: null, err: Error];
 

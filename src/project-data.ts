@@ -287,6 +287,10 @@ function getFrameworkDeps(framework: Frameworks): string[] {
       return ["preact"];
     case "svelte":
       return ["svelte"];
+    case "auto":
+      return [];
+    default:
+      return [];
   }
 }
 

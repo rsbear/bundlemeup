@@ -6,7 +6,7 @@
  */
 
 import { Command } from "@cliffy/command";
-import { bundlemeup } from "./mod.ts";
+import { bundleup } from "./mod.ts";
 import type { Frameworks } from "./types.ts";
 
 const program = new Command();
@@ -21,7 +21,7 @@ program
   .description("Print info about project")
   .action(async () => {
     try {
-      await bundlemeup({ command: "info" });
+      await bundleup({ command: "info" });
     } catch (err) {
       console.error(err);
       Deno.exit(1);
@@ -38,7 +38,7 @@ program
   .option("--css-tw", "Enable Tailwind CSS v4 integration")
   .action(async (flags: { framework?: string; cssTw?: boolean }) => {
     try {
-      await bundlemeup({
+      await bundleup({
         command: "dev",
         framework: flags?.framework as Frameworks,
         cssTw: flags.cssTw,
@@ -75,7 +75,7 @@ program
   .option("--css-tw", "Enable Tailwind CSS v4 integration")
   .action(async (flags: BuildFlags) => {
     try {
-      await bundlemeup({
+      await bundleup({
         command: "build",
         framework: flags?.framework as Frameworks,
         externals: flags?.externals,

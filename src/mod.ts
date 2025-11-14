@@ -6,20 +6,12 @@
  */
 
 import { interpretProjectData, printProjectData } from "./project-data.ts";
-import { build as viteBuild, createServer as viteCreateServer } from "vite";
-import { buildForStrategy } from "./buildfor-strategy.ts";
-import type { BuildTargets, BundlemeupFlags } from "./types.ts";
+import { createESBuild } from "./create-esbuild.ts";
 
+import type { BundlemeupFlags } from "./types.ts";
 export type { BundlemeupFlags };
 
-function buildTargetToStrUnion(flags: BundlemeupFlags): BuildTargets {
-  if (flags.forNpm) return "npm";
-  if (flags.forSpa) return "spa";
-  if (flags.forMountable) return "mountable";
-  return "spa";
-}
-
-export async function bundlemeup(flags: BundlemeupFlags) {
+export async function bundleup(flags: BundlemeupFlags) {
   const originalCwd = Deno.cwd();
 
   try {
@@ -29,7 +21,7 @@ export async function bundlemeup(flags: BundlemeupFlags) {
 
     switch (flags.command) {
       case "info": {
-        const [pd, err] = await interpretProjectData(flags.framework);
+        const [pd, err] = await interpretProjectData(flags.framework, flags.externals);
         if (err) {
           throw err;
         }
@@ -38,31 +30,35 @@ export async function bundlemeup(flags: BundlemeupFlags) {
       }
 
       case "dev": {
-        const [pd, err] = await interpretProjectData(flags.framework);
+        const [pd, err] = await interpretProjectData(flags.framework, flags.externals);
         if (err) {
           throw err;
         }
 
         pd.cssTw = flags.cssTw;
-        const cfg = await buildForStrategy(pd, "spa");
-        const server = await viteCreateServer(cfg);
-        await server.listen();
-        server.printUrls();
-        server.bindCLIShortcuts({ print: true });
+
+        const PORT = 3000;
+        const esbuildCtx = await createESBuild(pd).dev();
+        await esbuildCtx.watch();
+        await esbuildCtx.serve({
+          port: PORT,
+          servedir: "dist",
+        });
+        console.log(`[dev] server started at http://localhost:${PORT}`);
+
         break;
       }
 
       case "build": {
-        const [pd, err] = await interpretProjectData(flags.framework);
+        const [pd, err] = await interpretProjectData(flags.framework, flags.externals);
         if (err) {
           throw err;
         }
 
         pd.cssTw = flags.cssTw;
-        const targets = buildTargetToStrUnion(flags);
-        const cfg = await buildForStrategy(pd, targets);
 
-        await viteBuild(cfg);
+        await createESBuild(pd).build();
+
         break;
       }
 

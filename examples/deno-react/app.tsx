@@ -1,3 +1,4 @@
+import "./steeze.css";
 import { useState } from "react";
 
 export default function App() {
@@ -9,7 +10,7 @@ export default function App() {
   };
 
   return (
-    <div className="mt-12">
+    <div className="mt-20 bg-pink-400">
       <input
         type="text"
         onChange={(e) => setState(e.target.value)}
