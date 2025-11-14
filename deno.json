@@ -1,6 +1,6 @@
 {
   "name": "@habitat/bundleup",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "license": "MIT",
   "description": "A CLI that wraps rsbuild to build frontend framework based projects",
   "exports": {
@@ -48,7 +48,7 @@
     "lineWidth": 100
   },
   "publish": {
-    "include": ["LICENSE", "README.md", "src"],
+    "include": ["LICENSE", "README.md", "src", "deno.json"],
     "exclude": ["examples", ".github"]
   }
 }
