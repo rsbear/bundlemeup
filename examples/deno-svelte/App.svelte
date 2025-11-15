@@ -1,15 +1,14 @@
 <script lang="ts">
   import "./steeze.css";
 
-  let count = $state(0);
-  console.log("esbuildany svelte");
+  import { getCount, incCount } from "./State.svelte";
 
   const handleClick = () => {
-    count++;
+    incCount();
   };
 </script>
 
 <div>hello svelte</div>
 <button onclick={handleClick}>
-  clicks: {count}
+  clicks: {getCount()}
 </button>

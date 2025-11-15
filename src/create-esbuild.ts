@@ -1,22 +1,48 @@
 import type { ProjectData } from "./project-data.ts";
 
 import * as esbuild from "esbuild";
+import { denoPlugin } from "@deno/esbuild-plugin";
 import { esbuildPluginTailwind } from "@ryanto/esbuild-plugin-tailwind";
 import { getVirtualIds } from "./framework-mounts.ts";
 import { createBundlePlugin } from "./esbuild-plugins/bundle-plugin.ts";
 import { createMountFilePlugin } from "./esbuild-plugins/mount-file-plugin.ts";
 import { createHTMLPlugin } from "./esbuild-plugins/html-plugin.ts";
-import { createSveltePlugin } from "./esbuild-plugins/svelte-plugin.ts";
+// import { createSveltePlugin } from "./esbuild-plugins/svelte-plugin.ts";
+import { createTypeScriptPreprocessor } from "./preprocessors/typescript-preprocess.ts";
+
+import esbuildSvelteLib from "esbuild-svelte";
+
+const sveltePlugin = esbuildSvelteLib.default || esbuildSvelteLib;
 
 export function createESBuild(projectData: ProjectData) {
   const plugins: esbuild.Plugin[] = [];
   const mainFields = ["module", "main", "browser"];
   const conditions = ["browser"];
 
+  if (projectData.runtime === "deno") {
+    // plugins.push(denoPlugin());
+  }
+
   if (projectData.framework === "svelte") {
     mainFields.push("svelte");
     conditions.push("svelte");
-    plugins.push(createSveltePlugin());
+    // plugins.push(createSveltePlugin());
+    plugins.push(
+      sveltePlugin({
+        preprocess: createTypeScriptPreprocessor(),
+        esbuildTsTransformOptions: {
+          target: "es2020",
+          format: "esm",
+          tsconfigRaw: JSON.stringify({
+            compilerOptions: {
+              target: "ES2015",
+              verbatimModuleSyntax: true,
+              isolatedModules: true,
+            },
+          }),
+        },
+      }),
+    );
   }
 
   if (projectData.cssTw) {
@@ -59,7 +85,7 @@ export function createESBuild(projectData: ProjectData) {
     sourcemap: true,
     write: true,
     splitting: true,
-    chunkNames: '[name]-[hash]',
+    chunkNames: "[name]-[hash]",
     metafile: true,
     external: external.length > 0 ? external : undefined,
   };
@@ -72,6 +98,10 @@ export function createESBuild(projectData: ProjectData) {
     buildOptions.jsxImportSource = "preact";
   } else if (projectData.framework === "svelte") {
     buildOptions.jsx = "preserve";
+    buildOptions.loader = {
+      ".ts": "ts",
+      ".js": "js",
+    };
   }
 
   return {

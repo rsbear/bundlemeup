@@ -1,6 +1,6 @@
 {
   "name": "@habitat/bundleup",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "license": "MIT",
   "description": "A CLI that wraps esbuild to build frontend framework based projects",
   "exports": {
