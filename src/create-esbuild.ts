@@ -1,15 +1,12 @@
 import type { ProjectData } from "./project-data.ts";
 
 import * as esbuild from "esbuild";
-import esbuildSvelteLib from "esbuild-svelte";
-import { sveltePreprocess } from "svelte-preprocess";
 import { esbuildPluginTailwind } from "@ryanto/esbuild-plugin-tailwind";
 import { getVirtualIds } from "./framework-mounts.ts";
 import { createBundlePlugin } from "./esbuild-plugins/bundle-plugin.ts";
 import { createMountFilePlugin } from "./esbuild-plugins/mount-file-plugin.ts";
 import { createHTMLPlugin } from "./esbuild-plugins/html-plugin.ts";
-
-const sveltePlugin = esbuildSvelteLib.default || esbuildSvelteLib;
+import { createSveltePlugin } from "./esbuild-plugins/svelte-plugin.ts";
 
 export function createESBuild(projectData: ProjectData) {
   const plugins: esbuild.Plugin[] = [];
@@ -19,11 +16,7 @@ export function createESBuild(projectData: ProjectData) {
   if (projectData.framework === "svelte") {
     mainFields.push("svelte");
     conditions.push("svelte");
-    plugins.push(
-      sveltePlugin({
-        preprocess: sveltePreprocess(),
-      }),
-    );
+    plugins.push(createSveltePlugin());
   }
 
   if (projectData.cssTw) {
