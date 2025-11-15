@@ -1,6 +1,6 @@
 {
   "name": "@habitat/bundleup",
-  "version": "0.2.1",
+  "version": "0.2.11",
   "license": "MIT",
   "description": "A CLI that wraps esbuild to build frontend framework based projects",
   "exports": {
@@ -29,7 +29,6 @@
     "@std/http": "jsr:@std/http@^1.0.21",
     "esbuild": "npm:esbuild@^0.25.12",
     "esbuild-svelte": "npm:esbuild-svelte@^0.9.3",
-    "svelte-preprocess": "npm:svelte-preprocess@^6.0.3",
     "tailwindcss": "npm:tailwindcss@^4.1.17",
     "typescript": "npm:typescript@^5.9.3"
   },

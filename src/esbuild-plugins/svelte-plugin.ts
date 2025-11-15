@@ -1,5 +1,5 @@
 import type * as esbuild from "esbuild";
-import * as svelte from "npm:svelte/compiler";
+import * as svelte from "svelte/compiler";
 
 export function createSveltePlugin(options: {
   compilerOptions?: svelte.CompileOptions;
@@ -27,16 +27,19 @@ export function createSveltePlugin(options: {
         });
 
         let contents = result.js.code;
-        const resolveDir = args.path.substring(0, args.path.lastIndexOf('/'));
+        const resolveDir = args.path.substring(0, args.path.lastIndexOf("/"));
 
         if (result.css && result.css.code) {
           if (cssMode === "external") {
             const virtualId = args.path + "?svelte-css";
             contents += `\nimport "${virtualId}";\n`;
 
-            build.onLoad({ filter: new RegExp(escapeRegExp(virtualId)), namespace: "svelte-css" }, (): esbuild.OnLoadResult => {
-              return { contents: result.css!.code, loader: "css" };
-            });
+            build.onLoad(
+              { filter: new RegExp(escapeRegExp(virtualId)), namespace: "svelte-css" },
+              (): esbuild.OnLoadResult => {
+                return { contents: result.css!.code, loader: "css" };
+              },
+            );
           } else {
             const css = JSON.stringify(result.css.code);
             contents += `
