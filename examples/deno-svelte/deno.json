@@ -2,7 +2,7 @@
   "nodeModulesDir": "auto",
   "imports": {
     "svelte": "npm:svelte@^5.43.2",
-    "typescript": "npm:typescript@^5.9.3"
+    "tailwindcss": "npm:tailwindcss@^4.1.17"
   },
   "compilerOptions": {
     "verbatimModuleSyntax": true

@@ -2,7 +2,7 @@
   "version": "5",
   "specifiers": {
     "npm:svelte@^5.43.2": "5.43.2_acorn@8.15.0",
-    "npm:typescript@^5.9.3": "5.9.3"
+    "npm:tailwindcss@^4.1.17": "4.1.17"
   },
   "npm": {
     "@jridgewell/gen-mapping@0.3.13": {
@@ -97,9 +97,8 @@
         "zimmerframe"
       ]
     },
-    "typescript@5.9.3": {
-      "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
-      "bin": true
+    "tailwindcss@4.1.17": {
+      "integrity": "sha512-j9Ee2YjuQqYT9bbRTfTZht9W/ytp5H+jJpZKiYdP/bpnXARAuELt9ofP0lPnmHjbga7SNQIxdTAXCmtKVYjN+Q=="
     },
     "zimmerframe@1.1.4": {
       "integrity": "sha512-B58NGBEoc8Y9MWWCQGl/gq9xBCe4IiKM0a2x7GZdQKOW5Exr8S1W24J6OgM1njK8xCRGvAJIL/MxXHf6SkmQKQ=="
@@ -108,7 +107,7 @@
   "workspace": {
     "dependencies": [
       "npm:svelte@^5.43.2",
-      "npm:typescript@^5.9.3"
+      "npm:tailwindcss@^4.1.17"
     ]
   }
 }

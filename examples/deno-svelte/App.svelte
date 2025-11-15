@@ -1,4 +1,6 @@
 <script lang="ts">
+  import "./steeze.css";
+
   let count = $state(0);
   console.log("esbuildany svelte");
 

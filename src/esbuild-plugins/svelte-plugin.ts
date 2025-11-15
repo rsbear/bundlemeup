@@ -56,6 +56,24 @@ export function createSveltePlugin(options: {
           resolveDir,
         };
       });
+
+      build.onLoad({ filter: /\.svelte\.(js|ts)$/ }, async (args): Promise<esbuild.OnLoadResult> => {
+        const source = await Deno.readTextFile(args.path);
+        const result = svelte.compileModule(source, {
+          filename: args.path,
+          generate: "client",
+          ...compilerOptions,
+        });
+
+        const resolveDir = args.path.substring(0, args.path.lastIndexOf("/"));
+        const loader = args.path.endsWith(".ts") ? "ts" : "js";
+
+        return {
+          contents: result.js.code,
+          loader,
+          resolveDir,
+        };
+      });
     },
   };
 }
