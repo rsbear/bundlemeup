@@ -5,6 +5,7 @@
     "tailwindcss": "npm:tailwindcss@^4.1.17"
   },
   "compilerOptions": {
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "lib": ["deno.window", "dom"]
   }
 }
