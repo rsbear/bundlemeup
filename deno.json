@@ -1,11 +1,11 @@
 {
   "name": "@habitat/bundleup",
-  "version": "0.2.15",
+  "version": "0.2.16",
   "license": "MIT",
   "description": "A CLI that wraps esbuild to build frontend framework based projects",
   "exports": {
     ".": "./src/cli.ts",
-    "./lib": "./src/mod.ts",
+    "./lib": "./src/mod.ts"
   },
   "nodeModulesDir": "auto",
   "tasks": {

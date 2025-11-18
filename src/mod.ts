@@ -43,6 +43,7 @@ export async function bundleup(flags: BundlemeupFlags) {
         await esbuildCtx.serve({
           port: PORT,
           servedir: "dist",
+          fallback: "dist/index.html",
         });
         console.log(`[dev] server started at http://localhost:${PORT}`);
 
