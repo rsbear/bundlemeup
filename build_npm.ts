@@ -19,7 +19,7 @@ await build({
   test: false,
   package: {
     name: "bundlemeup",
-    version: "0.2.16",
+    version: "0.2.17",
     description:
       "A CLI tool that wraps rsbuild to bundle React, Svelte, or Preact to specified targets",
     license: "MIT",

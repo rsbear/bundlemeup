@@ -60,6 +60,30 @@ export async function bundleup(flags: BundlemeupFlags) {
 
         await createESBuild(pd).build();
 
+        if (flags.cpStatic) {
+          const staticDir = "static";
+          const outDir = "dist";
+          
+          try {
+            await Deno.stat(staticDir);
+            await Deno.mkdir(outDir, { recursive: true });
+            
+            for await (const entry of Deno.readDir(staticDir)) {
+              const srcPath = `${staticDir}/${entry.name}`;
+              const destPath = `${outDir}/${entry.name}`;
+              await Deno.copyFile(srcPath, destPath);
+            }
+            
+            console.log(`[build] Copied static assets from ${staticDir} to ${outDir}`);
+          } catch (e) {
+            if (e instanceof Deno.errors.NotFound) {
+              console.warn(`[build] Warning: ${staticDir} directory not found, skipping static asset copy`);
+            } else {
+              throw e;
+            }
+          }
+        }
+
         break;
       }
 

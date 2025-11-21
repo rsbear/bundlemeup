@@ -56,6 +56,7 @@ interface BuildFlags {
   forMountable?: boolean;
   forSpa?: boolean;
   cssTw?: boolean;
+  cpStatic?: boolean;
 }
 
 program
@@ -73,6 +74,7 @@ program
   .option("--for-mountable", "Build a mountable application for external use")
   .option("--for-spa", "Build a single-page application")
   .option("--css-tw", "Enable Tailwind CSS v4 integration")
+  .option("--cp-static", "Copy static assets from the 'static' directory to the output directory")
   .action(async (flags: BuildFlags) => {
     try {
       await bundleup({
@@ -83,6 +85,7 @@ program
         forMountable: flags.forMountable,
         forSpa: flags.forSpa,
         cssTw: flags.cssTw,
+        cpStatic: flags.cpStatic,
       });
     } catch (err) {
       console.error(err);

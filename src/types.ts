@@ -18,4 +18,5 @@ export interface BundlemeupFlags {
   forSpa?: boolean;
   cwd?: string;
   cssTw?: boolean;
+  cpStatic?: boolean;
 }

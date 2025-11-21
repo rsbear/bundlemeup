@@ -73,6 +73,12 @@ export function createESBuild(projectData: ProjectData) {
     external.push(...Object.keys(projectData.externalDeps));
   }
 
+  const alias: Record<string, string> = {};
+  if (projectData.framework === "preact") {
+    alias["react"] = "preact/compat";
+    alias["react-dom"] = "preact/compat";
+  }
+
   const buildOptions: esbuild.BuildOptions = {
     entryPoints,
     outdir,
@@ -88,6 +94,7 @@ export function createESBuild(projectData: ProjectData) {
     chunkNames: "[name]-[hash]",
     metafile: true,
     external: external.length > 0 ? external : undefined,
+    alias: Object.keys(alias).length > 0 ? alias : undefined,
   };
 
   if (projectData.framework === "react") {
