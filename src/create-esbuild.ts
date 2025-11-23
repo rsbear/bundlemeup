@@ -5,9 +5,7 @@ import { denoPlugin } from "@deno/esbuild-plugin";
 import { esbuildPluginTailwind } from "@ryanto/esbuild-plugin-tailwind";
 import { getVirtualIds } from "./framework-mounts.ts";
 import { createBundlePlugin } from "./esbuild-plugins/bundle-plugin.ts";
-import { createMountFilePlugin } from "./esbuild-plugins/mount-file-plugin.ts";
 import { createHTMLPlugin } from "./esbuild-plugins/html-plugin.ts";
-// import { createSveltePlugin } from "./esbuild-plugins/svelte-plugin.ts";
 import { createTypeScriptPreprocessor } from "./preprocessors/typescript-preprocess.ts";
 
 import esbuildSvelteLib from "esbuild-svelte";
@@ -54,19 +52,14 @@ export function createESBuild(projectData: ProjectData) {
 
   plugins.push(createBundlePlugin(projectData));
 
-  const { VIRTUAL_BUNDLE_ID, VIRTUAL_FRAMEWORK_ID } = getVirtualIds();
+  const { VIRTUAL_BUNDLE_ID } = getVirtualIds();
   const outdir = "dist";
 
   plugins.push(createHTMLPlugin(outdir, !!projectData.cssTw));
-  plugins.push(createMountFilePlugin(projectData, outdir));
 
   const entryPoints: Record<string, string> = {
     bundle: VIRTUAL_BUNDLE_ID,
   };
-
-  if (!projectData.externalDeps) {
-    entryPoints.framework = VIRTUAL_FRAMEWORK_ID;
-  }
 
   const external: string[] = [];
   if (projectData.externalDeps) {
@@ -90,8 +83,6 @@ export function createESBuild(projectData: ProjectData) {
     minify: false,
     sourcemap: true,
     write: true,
-    splitting: true,
-    chunkNames: "[name]-[hash]",
     metafile: true,
     external: external.length > 0 ? external : undefined,
     alias: Object.keys(alias).length > 0 ? alias : undefined,

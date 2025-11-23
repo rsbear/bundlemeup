@@ -1,27 +1,149 @@
 /**
  * Bundle Plugin for esbuild
  * 
- * This plugin creates virtual module resolvers for bundlemeup's internal virtual modules.
- * It handles two virtual modules:
- * - virtual:bundlemeup/bundle - Re-exports the user's entry point
- * - virtual:bundlemeup/framework - Provides framework-specific runtime exports
+ * This plugin creates a single virtual entry point that combines:
+ * - User's entry point (app code)
+ * - Framework-specific mount/unmount logic
+ * - Auto-initialization code that calls mount()
  * 
- * The plugin resolves these virtual module IDs and provides their contents dynamically
- * based on the project configuration (framework type, entry point, etc).
+ * The result is a single bundle.js file that contains everything needed to run the app.
  */
 
 import type { ProjectData } from "../project-data.ts";
 import type * as esbuild from "esbuild";
 import { getVirtualIds } from "../framework-mounts.ts";
 
-/**
- * Creates an esbuild plugin that handles virtual module resolution for the bundle and framework.
- * 
- * @param projectData - Project configuration containing entry point and framework information
- * @returns An esbuild plugin that resolves virtual module imports
- */
+function createBundleEntry(projectData: ProjectData): string {
+  const entryPath = projectData.entryPoint.startsWith('/') 
+    ? projectData.entryPoint 
+    : `./${projectData.entryPoint}`;
+
+  const externalDeps = projectData.externalDeps;
+  
+  if (projectData.framework === 'react') {
+    const importSource = externalDeps 
+      ? `import React from 'react';\nimport { createRoot } from 'react-dom/client';`
+      : `import React from 'react';\nimport { createRoot } from 'react-dom/client';`;
+    
+    return `
+import App from "${entryPath}";
+${importSource}
+
+let rootInstance = null;
+let rootElement = null;
+
+export function mount(domId = "root") {
+  const root = document.getElementById(domId);
+  if (!root) {
+    throw new Error(\`Root element with id "\${domId}" not found\`);
+  }
+
+  if (rootInstance) {
+    rootInstance.unmount();
+  }
+
+  rootElement = root;
+  rootInstance = createRoot(root);
+
+  rootInstance.render(
+    React.createElement(React.StrictMode, null, React.createElement(App, null))
+  );
+
+  return rootInstance;
+}
+
+export function unmount() {
+  if (rootInstance) {
+    rootInstance.unmount();
+    rootInstance = null;
+    rootElement = null;
+  }
+}
+
+mount();
+`;
+  } else if (projectData.framework === 'preact') {
+    const importSource = externalDeps 
+      ? `import { render, h } from 'preact';`
+      : `import { render, h } from 'preact';`;
+    
+    return `
+import App from "${entryPath}";
+${importSource}
+
+let rootInstance = null;
+let rootElement = null;
+
+export function mount(domId = "root") {
+  const root = document.getElementById(domId);
+  if (!root) {
+    throw new Error(\`Root element with id "\${domId}" not found\`);
+  }
+
+  if (rootInstance) {
+    unmount();
+  }
+
+  rootElement = root;
+  rootInstance = render(h(App, null), root);
+
+  return rootInstance;
+}
+
+export function unmount() {
+  if (rootInstance && rootElement) {
+    render(null, rootElement);
+    rootInstance = null;
+    rootElement = null;
+  }
+}
+
+mount();
+`;
+  } else if (projectData.framework === 'svelte') {
+    const importSource = externalDeps 
+      ? `import { mount as svelteMount } from 'svelte';`
+      : `import { mount as svelteMount } from 'svelte';`;
+    
+    return `
+import App from "${entryPath}";
+${importSource}
+
+let componentInstance = null;
+
+export function mount(domId = "root") {
+  const root = document.getElementById(domId);
+  if (!root) {
+    throw new Error(\`Root element with id "\${domId}" not found\`);
+  }
+
+  if (componentInstance) {
+    unmount();
+  }
+
+  componentInstance = svelteMount(App, {
+    target: root,
+  });
+
+  return componentInstance;
+}
+
+export function unmount() {
+  if (componentInstance) {
+    componentInstance.$destroy();
+    componentInstance = null;
+  }
+}
+
+mount();
+`;
+  }
+
+  throw new Error(`Unsupported framework: ${projectData.framework}`);
+}
+
 export function createBundlePlugin(projectData: ProjectData): esbuild.Plugin {
-  const { VIRTUAL_BUNDLE_ID, VIRTUAL_FRAMEWORK_ID } = getVirtualIds();
+  const { VIRTUAL_BUNDLE_ID } = getVirtualIds();
 
   return {
     name: "bundlemeup-bundle",
@@ -34,39 +156,8 @@ export function createBundlePlugin(projectData: ProjectData): esbuild.Plugin {
       });
 
       build.onLoad({ filter: new RegExp(`${VIRTUAL_BUNDLE_ID}$`), namespace: "bundlemeup-virtual" }, () => {
-        const entryPath = projectData.entryPoint.startsWith('/') 
-          ? projectData.entryPoint 
-          : `./${projectData.entryPoint}`;
-        
         return {
-          contents: `export { default } from "${entryPath}";`,
-          loader: "js",
-          resolveDir: Deno.cwd(),
-        };
-      });
-
-      build.onLoad({ filter: new RegExp(`${VIRTUAL_FRAMEWORK_ID}$`), namespace: "bundlemeup-virtual" }, () => {
-        let contents = '';
-        if (projectData.framework === 'react') {
-          contents = `
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-export { React, createRoot };
-`;
-        } else if (projectData.framework === 'preact') {
-          contents = `
-import { render, h } from 'preact';
-export { render, h };
-`;
-        } else if (projectData.framework === 'svelte') {
-          contents = `
-import { mount as svelteMount } from 'svelte';
-export { svelteMount as mount };
-`;
-        }
-        
-        return {
-          contents,
+          contents: createBundleEntry(projectData),
           loader: "js",
           resolveDir: Deno.cwd(),
         };

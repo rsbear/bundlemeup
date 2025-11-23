@@ -31,7 +31,7 @@ function createProjectHTML(includeCSS: boolean, cssPath: string = './bundle.css'
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="./mount.js"></script>
+    <script type="module" src="./bundle.js"></script>
   </body>
 </html>`;
 }
