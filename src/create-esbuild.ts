@@ -55,7 +55,10 @@ export function createESBuild(projectData: ProjectData) {
   const { VIRTUAL_BUNDLE_ID } = getVirtualIds();
   const outdir = "dist";
 
-  plugins.push(createHTMLPlugin(outdir, !!projectData.cssTw));
+  const shouldGenerateHTML = projectData.buildMode === "dev" || projectData.buildMode === "spa";
+  if (shouldGenerateHTML) {
+    plugins.push(createHTMLPlugin(outdir, !!projectData.cssTw));
+  }
 
   const entryPoints: Record<string, string> = {
     bundle: VIRTUAL_BUNDLE_ID,

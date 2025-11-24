@@ -29,6 +29,9 @@ export interface ProjectData {
 
   /** enable Tailwind CSS v4 integration */
   cssTw?: boolean;
+
+  /** build mode: dev, spa, or mountable */
+  buildMode?: "dev" | "spa" | "mountable";
 }
 
 /**

@@ -36,6 +36,7 @@ export async function bundleup(flags: BundlemeupFlags) {
         }
 
         pd.cssTw = flags.cssTw;
+        pd.buildMode = "dev";
 
         const PORT = 3000;
         const esbuildCtx = await createESBuild(pd).dev();
@@ -57,6 +58,14 @@ export async function bundleup(flags: BundlemeupFlags) {
         }
 
         pd.cssTw = flags.cssTw;
+        
+        if (flags.forMountable) {
+          pd.buildMode = "mountable";
+        } else if (flags.forSpa) {
+          pd.buildMode = "spa";
+        } else {
+          pd.buildMode = "spa";
+        }
 
         await createESBuild(pd).build();
 

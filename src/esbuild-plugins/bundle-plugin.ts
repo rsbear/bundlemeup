@@ -19,11 +19,14 @@ function createBundleEntry(projectData: ProjectData): string {
     : `./${projectData.entryPoint}`;
 
   const externalDeps = projectData.externalDeps;
+  const shouldAutoMount = projectData.buildMode !== "mountable";
   
   if (projectData.framework === 'react') {
     const importSource = externalDeps 
       ? `import React from 'react';\nimport { createRoot } from 'react-dom/client';`
       : `import React from 'react';\nimport { createRoot } from 'react-dom/client';`;
+    
+    const autoMountCall = shouldAutoMount ? '\nmount();' : '';
     
     return `
 import App from "${entryPath}";
@@ -58,14 +61,14 @@ export function unmount() {
     rootInstance = null;
     rootElement = null;
   }
-}
-
-mount();
+}${autoMountCall}
 `;
   } else if (projectData.framework === 'preact') {
     const importSource = externalDeps 
       ? `import { render, h } from 'preact';`
       : `import { render, h } from 'preact';`;
+    
+    const autoMountCall = shouldAutoMount ? '\nmount();' : '';
     
     return `
 import App from "${entryPath}";
@@ -96,14 +99,14 @@ export function unmount() {
     rootInstance = null;
     rootElement = null;
   }
-}
-
-mount();
+}${autoMountCall}
 `;
   } else if (projectData.framework === 'svelte') {
     const importSource = externalDeps 
       ? `import { mount as svelteMount } from 'svelte';`
       : `import { mount as svelteMount } from 'svelte';`;
+    
+    const autoMountCall = shouldAutoMount ? '\nmount();' : '';
     
     return `
 import App from "${entryPath}";
@@ -133,9 +136,7 @@ export function unmount() {
     componentInstance.$destroy();
     componentInstance = null;
   }
-}
-
-mount();
+}${autoMountCall}
 `;
   }
 
