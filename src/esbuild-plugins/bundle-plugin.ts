@@ -1,11 +1,11 @@
 /**
  * Bundle Plugin for esbuild
- * 
+ *
  * This plugin creates a single virtual entry point that combines:
  * - User's entry point (app code)
  * - Framework-specific mount/unmount logic
  * - Auto-initialization code that calls mount()
- * 
+ *
  * The result is a single bundle.js file that contains everything needed to run the app.
  */
 
@@ -14,20 +14,20 @@ import type * as esbuild from "esbuild";
 import { getVirtualIds } from "../framework-mounts.ts";
 
 function createBundleEntry(projectData: ProjectData): string {
-  const entryPath = projectData.entryPoint.startsWith('/') 
-    ? projectData.entryPoint 
+  const entryPath = projectData.entryPoint.startsWith("/")
+    ? projectData.entryPoint
     : `./${projectData.entryPoint}`;
 
   const externalDeps = projectData.externalDeps;
   const shouldAutoMount = projectData.buildMode !== "mountable";
-  
-  if (projectData.framework === 'react') {
-    const importSource = externalDeps 
+
+  if (projectData.framework === "react") {
+    const importSource = externalDeps
       ? `import React from 'react';\nimport { createRoot } from 'react-dom/client';`
       : `import React from 'react';\nimport { createRoot } from 'react-dom/client';`;
-    
-    const autoMountCall = shouldAutoMount ? '\nmount();' : '';
-    
+
+    const autoMountCall = shouldAutoMount ? "\nmount();" : "";
+
     return `
 import App from "${entryPath}";
 ${importSource}
@@ -63,13 +63,13 @@ export function unmount() {
   }
 }${autoMountCall}
 `;
-  } else if (projectData.framework === 'preact') {
-    const importSource = externalDeps 
+  } else if (projectData.framework === "preact") {
+    const importSource = externalDeps
       ? `import { render, h } from 'preact';`
       : `import { render, h } from 'preact';`;
-    
-    const autoMountCall = shouldAutoMount ? '\nmount();' : '';
-    
+
+    const autoMountCall = shouldAutoMount ? "\nmount();" : "";
+
     return `
 import App from "${entryPath}";
 ${importSource}
@@ -101,13 +101,13 @@ export function unmount() {
   }
 }${autoMountCall}
 `;
-  } else if (projectData.framework === 'svelte') {
-    const importSource = externalDeps 
+  } else if (projectData.framework === "svelte") {
+    const importSource = externalDeps
       ? `import { mount as svelteMount } from 'svelte';`
-      : `import { mount as svelteMount } from 'svelte';`;
-    
-    const autoMountCall = shouldAutoMount ? '\nmount();' : '';
-    
+      : `import { mount as svelteMount, unmount as svelteUnmount } from 'svelte';`;
+
+    const autoMountCall = shouldAutoMount ? "\nmount();" : "";
+
     return `
 import App from "${entryPath}";
 ${importSource}
@@ -133,7 +133,7 @@ export function mount(domId = "root") {
 
 export function unmount() {
   if (componentInstance) {
-    componentInstance.$destroy();
+    svelteUnmount(componentInstance, { outro: true });
     componentInstance = null;
   }
 }${autoMountCall}
@@ -156,13 +156,16 @@ export function createBundlePlugin(projectData: ProjectData): esbuild.Plugin {
         };
       });
 
-      build.onLoad({ filter: new RegExp(`${VIRTUAL_BUNDLE_ID}$`), namespace: "bundlemeup-virtual" }, () => {
-        return {
-          contents: createBundleEntry(projectData),
-          loader: "js",
-          resolveDir: Deno.cwd(),
-        };
-      });
+      build.onLoad(
+        { filter: new RegExp(`${VIRTUAL_BUNDLE_ID}$`), namespace: "bundlemeup-virtual" },
+        () => {
+          return {
+            contents: createBundleEntry(projectData),
+            loader: "js",
+            resolveDir: Deno.cwd(),
+          };
+        },
+      );
     },
   };
 }
