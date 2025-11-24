@@ -13,7 +13,13 @@ const VIRTUAL_BUNDLE_ID = `${VIRTUAL_PREFIX}_bundle.jsx`;
 const VIRTUAL_FRAMEWORK_ID = `${VIRTUAL_PREFIX}_framework.jsx`;
 
 export function getVirtualIds() {
-  return { VIRTUAL_PREFIX, VIRTUAL_MOD_ID, VIRTUAL_MOUNT_ID, VIRTUAL_BUNDLE_ID, VIRTUAL_FRAMEWORK_ID };
+  return {
+    VIRTUAL_PREFIX,
+    VIRTUAL_MOD_ID,
+    VIRTUAL_MOUNT_ID,
+    VIRTUAL_BUNDLE_ID,
+    VIRTUAL_FRAMEWORK_ID,
+  };
 }
 
 export function createMountCode(
@@ -94,7 +100,7 @@ export function unmount() {
     case "svelte":
       return `
 import App from "${appImportSpecifier}";
-import { mount as svelteMount } from "${frameworkImportSpecifier}";
+import { mount as svelteMount, unmount as svelteUnmount } from "${frameworkImportSpecifier}";
 
 let componentInstance = null;
 
@@ -117,7 +123,7 @@ export function mount(domId = "root") {
 
 export function unmount() {
   if (componentInstance) {
-    componentInstance.$destroy();
+    svelteUnmount(componentInstance, { outro: true });
     componentInstance = null;
   }
 }`;
