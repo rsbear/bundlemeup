@@ -36,12 +36,14 @@ program
     "Optional. By default, bundlemeup will try to detect the framework from dependencies. Use flag if you prefer to be explicit",
   )
   .option("--css-tw", "Enable Tailwind CSS v4 integration")
-  .action(async (flags: { framework?: string; cssTw?: boolean }) => {
+  .option("--custom-html", "Use custom index.html from project root instead of generating one")
+  .action(async (flags: { framework?: string; cssTw?: boolean; customHtml?: boolean }) => {
     try {
       await bundleup({
         command: "dev",
         framework: flags?.framework as Frameworks,
         cssTw: flags.cssTw,
+        customHtml: flags.customHtml,
       });
     } catch (err) {
       console.error(err);
@@ -57,6 +59,7 @@ interface BuildFlags {
   forSpa?: boolean;
   cssTw?: boolean;
   cpStatic?: boolean;
+  customHtml?: boolean;
 }
 
 program
@@ -75,6 +78,7 @@ program
   .option("--for-spa", "Build a single-page application")
   .option("--css-tw", "Enable Tailwind CSS v4 integration")
   .option("--cp-static", "Copy static assets from the 'static' directory to the output directory")
+  .option("--custom-html", "Use custom index.html from project root instead of generating one")
   .action(async (flags: BuildFlags) => {
     try {
       await bundleup({
@@ -86,6 +90,7 @@ program
         forSpa: flags.forSpa,
         cssTw: flags.cssTw,
         cpStatic: flags.cpStatic,
+        customHtml: flags.customHtml,
       });
     } catch (err) {
       console.error(err);

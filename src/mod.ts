@@ -21,7 +21,7 @@ export async function bundleup(flags: BundlemeupFlags) {
 
     switch (flags.command) {
       case "info": {
-        const [pd, err] = await interpretProjectData(flags.framework, flags.externals);
+        const [pd, err] = await interpretProjectData(flags.framework, flags.externals, flags.customHtml);
         if (err) {
           throw err;
         }
@@ -30,7 +30,7 @@ export async function bundleup(flags: BundlemeupFlags) {
       }
 
       case "dev": {
-        const [pd, err] = await interpretProjectData(flags.framework, flags.externals);
+        const [pd, err] = await interpretProjectData(flags.framework, flags.externals, flags.customHtml);
         if (err) {
           throw err;
         }
@@ -52,7 +52,7 @@ export async function bundleup(flags: BundlemeupFlags) {
       }
 
       case "build": {
-        const [pd, err] = await interpretProjectData(flags.framework, flags.externals);
+        const [pd, err] = await interpretProjectData(flags.framework, flags.externals, flags.customHtml);
         if (err) {
           throw err;
         }

@@ -41,28 +41,35 @@ function createProjectHTML(includeCSS: boolean, cssPath: string = './bundle.css'
  * 
  * @param outdir - The output directory where the HTML file will be written
  * @param includeCSS - Whether to include a CSS link tag in the generated HTML
+ * @param customHtmlPath - Optional path to a custom HTML file to copy instead of generating
  * @returns An esbuild plugin that generates the HTML file on build completion
  */
-export function createHTMLPlugin(outdir: string, includeCSS: boolean): esbuild.Plugin {
+export function createHTMLPlugin(outdir: string, includeCSS: boolean, customHtmlPath?: string): esbuild.Plugin {
   return {
     name: "bundlemeup-html",
     setup(build) {
       build.onEnd(async (result) => {
         await Deno.mkdir(outdir, { recursive: true });
         
-        let cssPath = './bundle.css';
-        if (result.metafile && includeCSS) {
-          for (const [outputPath] of Object.entries(result.metafile.outputs)) {
-            if (outputPath.endsWith('.css')) {
-              cssPath = outputPath.replace('dist/', './');
-              break;
+        const htmlPath = `${outdir}/index.html`;
+
+        if (customHtmlPath) {
+          const customHtml = await Deno.readTextFile(customHtmlPath);
+          await Deno.writeTextFile(htmlPath, customHtml);
+        } else {
+          let cssPath = './bundle.css';
+          if (result.metafile && includeCSS) {
+            for (const [outputPath] of Object.entries(result.metafile.outputs)) {
+              if (outputPath.endsWith('.css')) {
+                cssPath = outputPath.replace('dist/', './');
+                break;
+              }
             }
           }
-        }
 
-        const html = createProjectHTML(includeCSS, cssPath);
-        const htmlPath = `${outdir}/index.html`;
-        await Deno.writeTextFile(htmlPath, html);
+          const html = createProjectHTML(includeCSS, cssPath);
+          await Deno.writeTextFile(htmlPath, html);
+        }
       });
     },
   };

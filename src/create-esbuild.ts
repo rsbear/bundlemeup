@@ -57,7 +57,7 @@ export function createESBuild(projectData: ProjectData) {
 
   const shouldGenerateHTML = projectData.buildMode === "dev" || projectData.buildMode === "spa";
   if (shouldGenerateHTML) {
-    plugins.push(createHTMLPlugin(outdir, !!projectData.cssTw));
+    plugins.push(createHTMLPlugin(outdir, !!projectData.cssTw, projectData.customHtmlPath));
   }
 
   const entryPoints: Record<string, string> = {

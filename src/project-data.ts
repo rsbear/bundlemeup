@@ -32,6 +32,12 @@ export interface ProjectData {
 
   /** build mode: dev, spa, or mountable */
   buildMode?: "dev" | "spa" | "mountable";
+
+  /** use custom index.html from project root */
+  customHtml?: boolean;
+
+  /** path to custom HTML file if found */
+  customHtmlPath?: string;
 }
 
 /**
@@ -42,6 +48,7 @@ export interface ProjectData {
 export const interpretProjectData = async (
   maybeFramework?: Frameworks,
   externals?: string,
+  customHtml?: boolean,
 ): Promise<OkErr<ProjectData>> => {
   try {
     const runtime = discoverRuntime();
@@ -64,6 +71,19 @@ export const interpretProjectData = async (
 
     const externalDeps = buildExternalDeps(externals, libs, framework);
 
+    let customHtmlPath: string | undefined;
+    if (customHtml) {
+      customHtmlPath = findCustomHtml();
+      if (!customHtmlPath) {
+        return [
+          null,
+          new Error(
+            "Could not find index.html in project root. Please ensure index.html exists when using --custom-html flag.",
+          ),
+        ];
+      }
+    }
+
     return [
       {
         runtime,
@@ -71,6 +91,8 @@ export const interpretProjectData = async (
         deps: libs,
         entryPoint,
         externalDeps,
+        customHtml,
+        customHtmlPath,
       },
       null,
     ];
@@ -179,6 +201,18 @@ async function parseDenoJSON(): Promise<Record<PkgName, PkgVersion>> {
 /**
  * Locate the projects app file (entry point)
  */
+function findCustomHtml(): string | undefined {
+  try {
+    const stat = Deno.statSync("index.html");
+    if (stat.isFile) {
+      return "index.html";
+    }
+  } catch {
+    // File doesn't exist
+  }
+  return undefined;
+}
+
 function findAppFile(framework: Frameworks): string | null {
   const extensions = framework === "svelte" ? [".svelte"] : [".tsx", ".ts", ".jsx", ".js"];
 

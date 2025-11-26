@@ -19,4 +19,5 @@ export interface BundlemeupFlags {
   cwd?: string;
   cssTw?: boolean;
   cpStatic?: boolean;
+  customHtml?: boolean;
 }
