@@ -15,7 +15,7 @@ const sveltePlugin = esbuildSvelteLib.default || esbuildSvelteLib;
 export function createESBuild(projectData: ProjectData) {
   const plugins: esbuild.Plugin[] = [];
   const mainFields = ["module", "main", "browser"];
-  const conditions = ["browser"];
+  const conditions = ["browser", "style"];
 
   if (projectData.runtime === "deno") {
     // plugins.push(denoPlugin());
