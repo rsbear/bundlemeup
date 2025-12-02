@@ -65,7 +65,7 @@ export function createHTMLPlugin(
           if (result.metafile && includeCSS) {
             for (const [outputPath] of Object.entries(result.metafile.outputs)) {
               if (outputPath.endsWith(".css")) {
-                cssPath = outputPath.replace("dist/", "./");
+                cssPath = outputPath.replace("dist/", "/");
                 break;
               }
             }

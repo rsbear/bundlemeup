@@ -1,7 +1,8 @@
 {
   "nodeModulesDir": "auto",
   "imports": {
-    "preact": "npm:preact@^10.27.2"
+    "preact": "npm:preact@^10.27.2",
+    "tailwindcss": "npm:tailwindcss@^4.1.17"
   },
   "compilerOptions": {
     "jsx": "react-jsx",

@@ -1,3 +1,4 @@
+import "./steeze.css";
 import { useState } from "preact/hooks";
 
 export default function App() {
@@ -5,7 +6,7 @@ export default function App() {
   const [msg, setMsg] = useState("");
 
   const handleClick = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     setMsg(`click state: ${state}`);
   };
 
