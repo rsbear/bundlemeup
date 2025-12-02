@@ -20,7 +20,7 @@ import type * as esbuild from "esbuild";
  * @param cssPath - The path to the CSS file (defaults to './bundle.css')
  * @returns The generated HTML string
  */
-function createProjectHTML(includeCSS: boolean, cssPath: string = "/bundle.css"): string {
+function createProjectHTML(includeCSS: boolean, cssPath: string = "./bundle.css"): string {
   const cssLink = includeCSS ? `<link rel="stylesheet" href="${cssPath}" />` : "";
   return `<!DOCTYPE html>
 <html lang="en">
