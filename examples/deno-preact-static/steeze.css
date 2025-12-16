@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+.sun-svg {
+  height: 100px;
+  width: 100px;
+  background: url(/static/file.svg);
+}

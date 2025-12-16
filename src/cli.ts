@@ -12,7 +12,7 @@ import type { Frameworks } from "./types.ts";
 const program = new Command();
 
 program.name("bundlemeup").description("Bundle your app").version("1.0.0")
-  .action(function () {
+  .action(function (this: Command) {
     this.showHelp();
   });
 
@@ -35,14 +35,16 @@ program
     "--framework <framework>",
     "Optional. By default, bundlemeup will try to detect the framework from dependencies. Use flag if you prefer to be explicit",
   )
-  .option("--css-tw", "Enable Tailwind CSS v4 integration")
+  .option("--css-tw", "Force enable Tailwind CSS v4 integration (auto-detected if tailwindcss is in dependencies)")
+  .option("--cp-static", "Force copy static assets from 'static' directory (auto-detected if static/ exists)")
   .option("--custom-html", "Use custom index.html from project root instead of generating one")
-  .action(async (flags: { framework?: string; cssTw?: boolean; customHtml?: boolean }) => {
+  .action(async (flags: { framework?: string; cssTw?: boolean; cpStatic?: boolean; customHtml?: boolean }) => {
     try {
       await bundleup({
         command: "dev",
         framework: flags?.framework as Frameworks,
         cssTw: flags.cssTw,
+        cpStatic: flags.cpStatic,
         customHtml: flags.customHtml,
       });
     } catch (err) {
@@ -76,8 +78,8 @@ program
   .option("--for-npm", "Build for NPM")
   .option("--for-mountable", "Build a mountable application for external use")
   .option("--for-spa", "Build a single-page application")
-  .option("--css-tw", "Enable Tailwind CSS v4 integration")
-  .option("--cp-static", "Copy static assets from the 'static' directory to the output directory")
+  .option("--css-tw", "Force enable Tailwind CSS v4 integration (auto-detected if tailwindcss is in dependencies)")
+  .option("--cp-static", "Force copy static assets from 'static' directory (auto-detected if static/ exists)")
   .option("--custom-html", "Use custom index.html from project root instead of generating one")
   .action(async (flags: BuildFlags) => {
     try {

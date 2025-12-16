@@ -1,4 +1,4 @@
-import type { ProjectData } from "./project-data.ts";
+import type { ProjectData } from "./interpret-project/mod.ts";
 
 import * as esbuild from "esbuild";
 import { denoPlugin } from "@deno/esbuild-plugin";
@@ -6,6 +6,7 @@ import { esbuildPluginTailwind } from "@ryanto/esbuild-plugin-tailwind";
 import { getVirtualIds } from "./framework-mounts.ts";
 import { createBundlePlugin } from "./esbuild-plugins/bundle-plugin.ts";
 import { createHTMLPlugin } from "./esbuild-plugins/html-plugin.ts";
+import { createStaticExternalPlugin } from "./esbuild-plugins/static-external-plugin.ts";
 import { createTypeScriptPreprocessor } from "./preprocessors/typescript-preprocess.ts";
 
 import esbuildSvelteLib from "esbuild-svelte";
@@ -48,6 +49,10 @@ export function createESBuild(projectData: ProjectData) {
       base: Deno.cwd(),
       minify: true,
     }));
+  }
+
+  if (projectData.cpStatic) {
+    plugins.push(createStaticExternalPlugin());
   }
 
   plugins.push(createBundlePlugin(projectData));

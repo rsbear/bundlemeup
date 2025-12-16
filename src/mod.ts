@@ -5,7 +5,9 @@
  * @module
  */
 
-import { interpretProjectData, printProjectData } from "./project-data.ts";
+import { interpretProjectData, printProjectData } from "./interpret-project/mod.ts";
+import { copyStaticDir } from "./interpret-project/handle-static-dir.ts";
+
 import { createESBuild } from "./create-esbuild.ts";
 
 import type { BundlemeupFlags } from "./types.ts";
@@ -21,7 +23,11 @@ export async function bundleup(flags: BundlemeupFlags) {
 
     switch (flags.command) {
       case "info": {
-        const [pd, err] = await interpretProjectData(flags.framework, flags.externals, flags.customHtml);
+        const [pd, err] = await interpretProjectData(
+          flags.framework,
+          flags.externals,
+          flags.customHtml,
+        );
         if (err) {
           throw err;
         }
@@ -30,13 +36,27 @@ export async function bundleup(flags: BundlemeupFlags) {
       }
 
       case "dev": {
-        const [pd, err] = await interpretProjectData(flags.framework, flags.externals, flags.customHtml);
+        const [pd, err] = await interpretProjectData(
+          flags.framework,
+          flags.externals,
+          flags.customHtml,
+        );
         if (err) {
           throw err;
         }
 
-        pd.cssTw = flags.cssTw;
+        if (flags.cssTw !== undefined) {
+          pd.cssTw = flags.cssTw;
+        }
+        if (flags.cpStatic !== undefined) {
+          pd.cpStatic = flags.cpStatic;
+        }
         pd.buildMode = "dev";
+
+        if (pd.cpStatic) {
+          await copyStaticDir("dist");
+          console.log(`[dev] Copied static assets to dist/static`);
+        }
 
         const PORT = 3000;
         const esbuildCtx = await createESBuild(pd).dev();
@@ -52,13 +72,22 @@ export async function bundleup(flags: BundlemeupFlags) {
       }
 
       case "build": {
-        const [pd, err] = await interpretProjectData(flags.framework, flags.externals, flags.customHtml);
+        const [pd, err] = await interpretProjectData(
+          flags.framework,
+          flags.externals,
+          flags.customHtml,
+        );
         if (err) {
           throw err;
         }
 
-        pd.cssTw = flags.cssTw;
-        
+        if (flags.cssTw !== undefined) {
+          pd.cssTw = flags.cssTw;
+        }
+        if (flags.cpStatic !== undefined) {
+          pd.cpStatic = flags.cpStatic;
+        }
+
         if (flags.forMountable) {
           pd.buildMode = "mountable";
         } else if (flags.forSpa) {
@@ -67,31 +96,12 @@ export async function bundleup(flags: BundlemeupFlags) {
           pd.buildMode = "spa";
         }
 
-        await createESBuild(pd).build();
-
-        if (flags.cpStatic) {
-          const staticDir = "static";
-          const outDir = "dist";
-          
-          try {
-            await Deno.stat(staticDir);
-            await Deno.mkdir(outDir, { recursive: true });
-            
-            for await (const entry of Deno.readDir(staticDir)) {
-              const srcPath = `${staticDir}/${entry.name}`;
-              const destPath = `${outDir}/${entry.name}`;
-              await Deno.copyFile(srcPath, destPath);
-            }
-            
-            console.log(`[build] Copied static assets from ${staticDir} to ${outDir}`);
-          } catch (e) {
-            if (e instanceof Deno.errors.NotFound) {
-              console.warn(`[build] Warning: ${staticDir} directory not found, skipping static asset copy`);
-            } else {
-              throw e;
-            }
-          }
+        if (pd.cpStatic) {
+          await copyStaticDir("dist");
+          console.log(`[build] Copied static assets to dist/static`);
         }
+
+        await createESBuild(pd).build();
 
         break;
       }
